@@ -29,6 +29,18 @@ fun onBack(action: () -> Unit) {
     }
 }
 
+fun onLater(action: () -> Unit) {
+    Platform.runLater { action() }
+}
+
+/**[time]需要延迟的毫秒*/
+fun onDelay(time: Long, action: () -> Unit) {
+    onBack {
+        Thread.sleep(time)
+        onLater(action)
+    }
+}
+
 /**是否是主进程
  * JavaFX Application Thread
  * */

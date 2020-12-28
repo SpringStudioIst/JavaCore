@@ -85,6 +85,7 @@ object Tray {
     private fun getGraphicsDeviceAt(pos: Point): GraphicsDevice {
         val device: GraphicsDevice
         val ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
+        //多个显示器
         val lstGDs = ge.screenDevices
         val lstDevices = ArrayList<GraphicsDevice>(lstGDs.size)
         for (gd in lstGDs) {

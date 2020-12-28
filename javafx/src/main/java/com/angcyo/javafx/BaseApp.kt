@@ -1,11 +1,13 @@
 package com.angcyo.javafx
 
 import com.angcyo.http.rx.mainScheduler
+import com.angcyo.javafx.ui.Tray
 import com.angcyo.log.L
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
 import javafx.application.Application
 import javafx.stage.Screen
 import javafx.stage.Stage
+import java.awt.Point
 
 /**
  * Email:angcyo@126.com
@@ -27,15 +29,10 @@ open class BaseApp : Application() {
     /**主舞台*/
     lateinit var primaryStage: Stage
 
-    override fun start(primaryStage: Stage) {
-        //JavaFX Application Thread
-        this.primaryStage = primaryStage
-        app = this
-    }
 
+    /**1: JavaFX-Launcher*/
     override fun init() {
         super.init()
-        //JavaFX-Launcher
         L.w(Screen.getScreens())
         //Tray.addTray()
 
@@ -44,9 +41,16 @@ open class BaseApp : Application() {
         }*/
     }
 
+    /**2: JavaFX Application Thread*/
+    override fun start(primaryStage: Stage) {
+        this.primaryStage = primaryStage
+        app = this
+        Tray.getSafeScreenBounds(Point(1, 1))
+    }
+
+    /**3: JavaFX Application Thread*/
     override fun stop() {
         super.stop()
-        //JavaFX Application Thread
         //Platform.exit()
     }
 }
