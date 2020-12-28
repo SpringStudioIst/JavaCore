@@ -1,0 +1,38 @@
+//https://plugins.gradle.org/plugin/org.openjfx.javafxplugin
+
+apply plugin: 'application'
+apply plugin: 'org.openjfx.javafxplugin'
+apply from: allGradle.base
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    implementation project(allModule.javafx)
+}
+
+// javafx 支持
+
+javafx {
+    version = "11.0.2"
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+// 这个设置给插件运行配置使用
+mainClassName = project.extensions.getByName("startClassName")
+
+//这里配置到jar的包中
+jar {
+    manifest {
+        attributes 'Main-Class': project.extensions.getByName("startClassName")
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+//启动, 需要java 11
+//"D:\Java\corretto-11.0.9.1\bin\java.exe" -jar SeleniumTools-1.0-SNAPSHOT.jar

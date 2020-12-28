@@ -1,0 +1,16 @@
+apply from: allGradle.lib
+apply plugin: 'org.openjfx.javafxplugin'
+
+// javafx 支持
+
+javafx {
+    version = "11.0.2"
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+dependencies {
+    api project(allModule.log)
+    api project(allModule.base)
+    api project(allModule.http)
+}
+

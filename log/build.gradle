@@ -1,0 +1,11 @@
+apply from: allGradle.lib
+
+dependencies {
+    //log
+    //https://jcenter.bintray.com/org/slf4j/slf4j-api/
+    api 'org.slf4j:slf4j-api:1.7.30'
+    //https://jcenter.bintray.com/ch/qos/logback/logback-classic/
+    api 'ch.qos.logback:logback-classic:1.2.3'
+    //https://jcenter.bintray.com/ch/qos/logback/logback-core/
+    api 'ch.qos.logback:logback-core:1.2.3'
+}

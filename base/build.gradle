@@ -1,0 +1,5 @@
+apply from: allGradle.lib
+
+dependencies {
+    implementation project(allModule.log)
+}
