@@ -1,62 +1,78 @@
 package com.angcyo.javafx.ui
 
-import com.angcyo.library.ex.getResource
+import com.angcyo.javafx.BaseApp
+import com.angcyo.javafx.base.ex.onMain
+import com.angcyo.log.L
+import javafx.application.Platform
 import java.awt.*
 import java.awt.event.ActionListener
 import java.util.*
-import javax.imageio.ImageIO
 
 
 /**
  * 托盘操作类
+ *
+ * https://stackoverflow.com/questions/12571329/javafx-app-in-system-tray
+ * https://docs.oracle.com/javase/8/docs/api/java/awt/SystemTray.html
+ *
  * Email:angcyo@126.com
  * @author angcyo
  * @date 2020/12/26
  */
 object Tray {
-    fun addTray() {
+
+    /**添加一个托盘图标*/
+    fun addTray(image: Image, tooltip: String, action: (TrayIcon, PopupMenu) -> Unit = { _, _ -> }): TrayIcon? {
         if (SystemTray.isSupported()) {
-            // get the SystemTray instance
+            Platform.setImplicitExit(false)//重点:关闭隐式退出, 否则界面关闭程序就没了.
+            //可以通过javafx.application.Platform.exit退出程序
             val tray = SystemTray.getSystemTray()
-            // load an image
-            //val image = Toolkit.getDefaultToolkit().getImage("")
-            val image = ImageIO.read(getResource("logo.png"))
-            // create a action listener to listen for default action executed on the tray icon
-            val listener = ActionListener {
-                // execute default action of the application
-                // ...
+            val showOrHideListener = ActionListener {
+                //点击托盘, 显示主界面
+                onMain {
+                    //Not on FX application thread; currentThread = AWT-EventQueue-0
+                    BaseApp.app.primaryStage.apply {
+                        if (isShowing) {
+                            hide()
+                        } else {
+                            show()
+                        }
+                    }
+                }
             }
-            // create a popup menu
+            //弹出菜单
             val popup = PopupMenu()
-            // create menu item for the default action
-            val defaultItem = MenuItem("test")
-            defaultItem.addActionListener(listener)
-            popup.add(defaultItem)
-            /// ... add other items
-            // construct a TrayIcon
-            val trayIcon = TrayIcon(image, "Tray Demo", popup)
-            // set the TrayIcon properties
-            trayIcon.addActionListener(listener)
+            val trayIcon = TrayIcon(image, tooltip, popup)
+            trayIcon.addActionListener(showOrHideListener)
             trayIcon.isImageAutoSize = true
-            // ...
-            // add the tray image
+
+            action(trayIcon, popup)
+
+            //如果出现中文乱码, 请使用:-Dfile.encoding=GBK  //GB18030
+            val existItem = MenuItem("退出程序")
+            val exitListener = ActionListener {
+                tray.remove(trayIcon)
+                Platform.exit()
+                //exitProcess(1)
+            }
+            existItem.addActionListener(exitListener)
+            popup.add(existItem)
+
             try {
                 tray.add(trayIcon)
             } catch (e: AWTException) {
-                System.err.println(e)
+                L.e(e)
             }
-            // ...
+            return trayIcon
         } else {
-            // disable tray option in your application or
-            // perform other actions
-//           ...
+            L.w("当前系统不支持托盘")
         }
-        // ...
         // some time later
         // the application state has changed - update the image
 //        if (trayIcon != null) {
 //            trayIcon.setImage(updatedImage);
 //        }
+        return null
     }
 
     /**获取[pos]在屏幕上安全的矩形*/

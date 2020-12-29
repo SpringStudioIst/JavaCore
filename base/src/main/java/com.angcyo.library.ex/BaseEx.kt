@@ -1,6 +1,8 @@
 package com.angcyo.library.ex
 
+import java.awt.image.BufferedImage
 import java.net.URL
+import javax.imageio.ImageIO
 
 /**
  * Email:angcyo@126.com
@@ -53,4 +55,14 @@ fun Any.getResource(name: String): URL? {
         url = javaClass.classLoader.getResource(name)
     }
     return url
+}
+
+/**从资源中获取图片*/
+fun Any.getImage(imageName: String): BufferedImage? {
+    return try {
+        ImageIO.read(getResource(imageName))
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
