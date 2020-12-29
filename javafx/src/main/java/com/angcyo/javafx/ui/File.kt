@@ -15,7 +15,9 @@ import java.io.File
  */
 
 /**快速获取文件过滤扩展对象*/
-fun ext(des: String, vararg ext: String) = arrayOf(ExtensionFilter(des, *ext))
+fun ext(des: String, vararg ext: String) = ExtensionFilter(des, *ext)
+
+fun exts(vararg ext: ExtensionFilter) = ext
 
 /**
  * 调用系统的选择文件的窗口
@@ -29,7 +31,7 @@ fun chooserFile(title: String = "选择文件", stage: Stage = BaseApp.app.prima
     fileChooser.title = title
     fileChooser.initialDirectory = File(".")
     if (ext.isEmpty()) {
-        fileChooser.extensionFilters.addAll(ext("所有文件", "*.*"))
+        fileChooser.extensionFilters.add(ext("所有文件", "*.*"))
     } else {
         fileChooser.extensionFilters.addAll(ext)
     }
