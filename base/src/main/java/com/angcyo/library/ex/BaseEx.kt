@@ -1,6 +1,7 @@
 package com.angcyo.library.ex
 
 import java.awt.image.BufferedImage
+import java.io.InputStream
 import java.net.URL
 import javax.imageio.ImageIO
 
@@ -55,6 +56,19 @@ fun Any.getResource(name: String): URL? {
         url = javaClass.classLoader.getResource(name)
     }
     return url
+}
+
+fun Any.getResourceAsStream(name: String): InputStream? {
+    var stream: InputStream? = null
+    try {
+        stream = javaClass.getResourceAsStream(name)
+    } catch (e: Exception) {
+        //
+    }
+    if (stream == null) {
+        stream = javaClass.classLoader.getResourceAsStream(name)
+    }
+    return stream
 }
 
 /**从资源中获取图片*/
