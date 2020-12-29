@@ -3,6 +3,10 @@ package com.angcyo.javafx.base.ex
 import com.angcyo.http.rx.runRx
 import com.angcyo.javafx.base.BaseController
 import javafx.application.Platform
+import javafx.scene.Node
+import javafx.scene.Scene
+import javafx.stage.Stage
+import javafx.stage.Window
 
 /**
  * Email:angcyo@126.com
@@ -49,3 +53,11 @@ fun isFxApplicationThread() = Platform.isFxApplicationThread()
 /**获取控制器*/
 inline fun <reified Controller : BaseController> ctl(): Controller? =
     BaseController.controllerHolder[Controller::class.java] as? Controller
+
+/**通过[Node]获取所在的舞台*/
+fun Node.getStage() = scene?.window as? Stage
+
+/**通过css选择器, 选择场景中的[Node]*/
+fun <T> Scene.findByCss(selector: String): T? = lookup(selector) as? T
+
+fun <T> Window.findByCss(selector: String) = scene?.findByCss(selector) as? T

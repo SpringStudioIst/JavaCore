@@ -3,6 +3,7 @@ package com.angcyo.javafx.base
 import com.angcyo.library.ex.className
 import com.angcyo.log.L
 import javafx.fxml.Initializable
+import javafx.stage.Stage
 import java.net.URL
 import java.util.*
 
@@ -21,6 +22,11 @@ open class BaseController : Initializable {
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         L.i("${className()} initialize:$location $resources")
         controllerHolder[this.javaClass] = this
+    }
+
+    /**初始化控制器*/
+    open fun initialize(stage: Stage?, location: URL?, resources: ResourceBundle?) {
+        initialize(location, resources)
     }
 
     /**销毁控制器*/

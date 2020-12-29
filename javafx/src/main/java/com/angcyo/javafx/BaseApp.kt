@@ -4,6 +4,7 @@ import com.angcyo.http.rx.mainScheduler
 import com.angcyo.log.L
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
 import javafx.application.Application
+import javafx.application.Platform
 import javafx.stage.Screen
 import javafx.stage.Stage
 import java.nio.charset.Charset
@@ -57,4 +58,10 @@ open class BaseApp : Application() {
         super.stop()
         //Platform.exit()
     }
+
+    /**退出应用程序*/
+    open fun exit() {
+        Platform.exit()
+    }
+
 }

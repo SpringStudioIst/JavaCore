@@ -119,3 +119,8 @@ object Tray {
         return device
     }
 }
+
+/**移除托盘*/
+fun TrayIcon.remove() {
+    SystemTray.getSystemTray().remove(this)
+}
