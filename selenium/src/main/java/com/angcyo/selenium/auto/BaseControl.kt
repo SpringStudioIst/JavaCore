@@ -1,65 +1,70 @@
 package com.angcyo.selenium.auto
 
-import com.angcyo.selenium.findByCss
-import com.angcyo.selenium.findByLinkText
-import com.angcyo.selenium.findByTag
-import com.angcyo.selenium.findByText
-import org.openqa.selenium.TimeoutException
+import com.angcyo.log.L
+import com.angcyo.selenium.bean.ActionBean
+import com.angcyo.selenium.bean.TaskBean
+import com.angcyo.selenium.parse.CheckParse
 import org.openqa.selenium.WebDriver
-import org.openqa.selenium.WebElement
-import org.openqa.selenium.support.ui.FluentWait
-import java.time.Duration
 
 /** 控制[org.openqa.selenium.WebElement]
  * Email:angcyo@126.com
  * @author angcyo
  * @date 2020/12/24
  */
-open class BaseControl(val driver: WebDriver) {
+open class BaseControl {
+    /**驱动*/
+    var driver: WebDriver? = null
 
-    companion object {
-        const val TAGS = "span a i li p ul div"
+    /**日志输出*/
+    var logAction: ((ControlTip) -> Unit)? = {
+        L.i(it.title, it.des)
     }
 
-    /**先通过[Tag]获取标签, 再通过文本进行匹配元素*/
-    fun findByText(text: String, tags: String = TAGS): List<WebElement> {
-        return driver.findByText(text, tags)
+    /**当前运行的任务*/
+    var _currentTaskBean: TaskBean? = null
+
+    /**[ActionBean]执行器*/
+    var actionRunManager: ActionRunManager = ActionRunManager(this)
+
+    val _checkParse = CheckParse()
+
+    open fun startInner(task: TaskBean) {
+        _currentTaskBean = task
     }
 
-    /**通过标签[TAG]进行匹配元素*/
-    fun findByTag(tags: String = TAGS, predicate: (WebElement) -> Boolean = { true }): List<WebElement> {
-        return driver.findByTag(tags, predicate)
-    }
-
-    /**css选择器选择元素
-     * document.querySelectorAll("input[placeholder=请输入账号]")
-     * https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Selectors
-     * */
-    fun findByCss(css: String): List<WebElement> {
-        return driver.findByCss(css)
-    }
-
-    /**查找链接<a>标签的文本*/
-    fun findByLinkText(linkText: String): List<WebElement>? {
-        return driver.findByLinkText(linkText)
-    }
-
-    /**等待网页指定约束准备就绪
-     * [timeout] 等待超时,秒
-     * [pollingEvery] 检查频率,秒
-     *
-     * [org.openqa.selenium.support.ui.FluentWait.timeoutException]
-     * */
-    @Throws(TimeoutException::class)
-    fun waitBy(timeout: Long = 10, pollingEvery: Long = 1, action: () -> List<WebElement>?): List<WebElement>? {
-        var result: List<WebElement>? = null
-        FluentWait(driver)
-            .withTimeout(Duration.ofSeconds(timeout))
-            .pollingEvery(Duration.ofSeconds(pollingEvery))
-            .until {
-                result = action()
-                !result.isNullOrEmpty()
+    /**执行动作, [actionBean]无法处理时, 则交给[otherActionList]处理*/
+    open fun runAction(actionBean: ActionBean, otherActionList: List<ActionBean>?) {
+        if (actionBean.check == null) {
+            //无效的check, no op
+        } else {
+            val elementList = _checkParse.parse(this, actionBean.check?.event)
+            if (elementList.isEmpty()) {
+                //未找到元素
+                val handleResult = _checkParse.handle(this, actionBean.check?.other)
+                if (!handleResult.success) {
+                    //还是未处理
+                    otherActionList?.forEach {
+                        runAction(actionBean, null)
+                    }
+                }
+            } else {
+                //找到了目标元素
+                val handleResult = _checkParse.handle(this, actionBean.check?.handle)
+                if (!handleResult.success) {
+                    //处理成功
+                    actionRunManager.next()
+                } else {
+                    //未处理成功
+                }
             }
-        return result
+        }
+    }
+
+    /**运行结束*/
+    open fun finish() {
+        logAction?.invoke(ControlTip().apply {
+            title = "${_currentTaskBean?.title}${actionRunManager.indexTip()} 执行完成!"
+            des = "耗时:${actionRunManager.duration()}ms"
+        })
     }
 }

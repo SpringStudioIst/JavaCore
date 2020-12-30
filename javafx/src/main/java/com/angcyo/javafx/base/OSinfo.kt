@@ -1,11 +1,11 @@
 package com.angcyo.javafx.base
 
-class OSinfo {
+class OSInfo {
     private var platform: EPlatform? = null
 
     companion object {
         private val OS = System.getProperty("os.name").toLowerCase()
-        private val _instance = OSinfo()
+        private val _instance = OSInfo()
         val isLinux: Boolean
             get() = OS.indexOf("linux") >= 0
         val isMacOS: Boolean

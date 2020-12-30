@@ -6,17 +6,23 @@ package com.angcyo.selenium.bean
  * @author angcyo
  * @date 2020/12/29
  */
-class TaskBean {
+data class TaskBean(
 
     /**目标网址*/
-    var url: String? = null
+    var url: String? = null,
 
     /**窗口配置*/
-    var config: TaskConfigBean? = null
+    var config: TaskConfigBean? = null,
+
+    /**任务的标题*/
+    var title: String? = null,
+
+    /**任务的描述*/
+    var des: String? = null,
 
     /**操作步骤*/
-    var actionList: List<ActionBean>? = null
+    var actionList: List<ActionBean>? = null,
 
     /**[actionList]未处理时的操作步骤*/
-    var backActionList: List<ActionBean>? = null
-}
+    var backActionList: List<ActionBean>? = null,
+)

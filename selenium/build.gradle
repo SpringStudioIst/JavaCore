@@ -1,9 +1,18 @@
 apply from: allGradle.lib
+apply plugin: 'org.openjfx.javafxplugin'
+// javafx 支持
+
+javafx {
+    version = "11.0.2"
+    modules = ['javafx.controls', 'javafx.fxml']
+}
 
 dependencies {
     //https://www.selenium.dev/documentation/zh-cn/selenium_installation/installing_selenium_libraries/
     //https://jcenter.bintray.com/org/seleniumhq/selenium/selenium-java/
     api "org.seleniumhq.selenium:selenium-java:4.0.0-alpha-7"
 
-    implementation project(allModule.javafx)
+    api project(allModule.javafx)
+
+    implementation "org.seleniumhq.selenium:selenium-java:4.0.0-alpha-7"
 }

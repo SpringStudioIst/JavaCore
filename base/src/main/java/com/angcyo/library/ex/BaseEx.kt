@@ -81,3 +81,8 @@ fun Any.getImage(imageName: String): BufferedImage? {
         null
     }
 }
+
+/**休眠*/
+fun sleep(millis: Long = 160) {
+    Thread.sleep(millis)
+}
