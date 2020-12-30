@@ -71,7 +71,8 @@ fun Any.getResourceAsStream(name: String): InputStream? {
     return stream
 }
 
-/**从资源中获取图片*/
+/**从资源中获取图片
+ * [java.awt.Image]*/
 fun Any.getImage(imageName: String): BufferedImage? {
     return try {
         ImageIO.read(getResource(imageName))

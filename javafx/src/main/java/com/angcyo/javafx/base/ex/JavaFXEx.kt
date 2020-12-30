@@ -2,9 +2,11 @@ package com.angcyo.javafx.base.ex
 
 import com.angcyo.http.rx.runRx
 import com.angcyo.javafx.base.BaseController
+import com.angcyo.library.ex.getResource
 import javafx.application.Platform
 import javafx.scene.Node
 import javafx.scene.Scene
+import javafx.scene.image.Image
 import javafx.stage.Stage
 import javafx.stage.Window
 
@@ -63,3 +65,13 @@ fun Node.getStage() = scene?.window as? Stage
 fun <T> Scene.findByCss(selector: String): T? = lookup(selector) as? T?
 
 fun <T> Window.findByCss(selector: String) = scene?.findByCss(selector) as? T
+
+/**[javafx.scene.image.Image]*/
+fun Any.getImageFx(imageName: String): Image? {
+    return try {
+        Image(getResource(imageName).toString())
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}

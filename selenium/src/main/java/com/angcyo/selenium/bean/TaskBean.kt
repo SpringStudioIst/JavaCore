@@ -12,7 +12,7 @@ class TaskBean {
     var url: String? = null
 
     /**窗口配置*/
-    var window: WindowBean? = null
+    var config: TaskConfigBean? = null
 
     /**操作步骤*/
     var actionList: List<ActionBean>? = null

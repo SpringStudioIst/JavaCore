@@ -1,7 +1,7 @@
 package com.angcyo.selenium.parse
 
 import com.angcyo.library.ex.patternList
-import com.angcyo.selenium.bean.WindowBean
+import com.angcyo.selenium.bean.TaskConfigBean
 import com.angcyo.selenium.isValid
 import org.openqa.selenium.Dimension
 import org.openqa.selenium.Point
@@ -29,20 +29,20 @@ class RectParse {
     companion object {
 
         /**配置浏览器窗口大小*/
-        fun configWindow(driver: WebDriver, windowBean: WindowBean?) {
-            if (windowBean != null) {
+        fun configWindow(driver: WebDriver, taskConfigBean: TaskConfigBean?) {
+            if (taskConfigBean != null) {
                 driver.manage().window().apply {
-                    if (windowBean.rect == null) {
+                    if (taskConfigBean.rect == null) {
                         when {
-                            windowBean.maximize -> maximize()
-                            windowBean.minimize -> minimize()
-                            windowBean.fullscreen -> fullscreen()
+                            taskConfigBean.maximize -> maximize()
+                            taskConfigBean.minimize -> minimize()
+                            taskConfigBean.fullscreen -> fullscreen()
                         }
                     } else {
                         configWindow(
                             driver,
                             RectParse().parse(
-                                windowBean.rect,
+                                taskConfigBean.rect,
                                 Rectangle(0, 0, size.height, size.width)
                             )
                         )

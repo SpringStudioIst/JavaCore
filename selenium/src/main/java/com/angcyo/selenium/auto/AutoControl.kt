@@ -1,6 +1,7 @@
 package com.angcyo.selenium.auto
 
 import com.angcyo.log.L
+import com.angcyo.selenium.bean.TaskBean
 import org.openqa.selenium.WebDriver
 
 /**
@@ -10,7 +11,8 @@ import org.openqa.selenium.WebDriver
  * @date 2020/12/29
  */
 class AutoControl(driver: WebDriver) : BaseControl(driver), Runnable {
-    fun start() {
+
+    fun start(task: TaskBean) {
         L.i()
     }
 

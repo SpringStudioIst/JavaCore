@@ -6,7 +6,7 @@ package com.angcyo.selenium.bean
  * @author angcyo
  * @date 2020/12/29
  */
-class WindowBean {
+class TaskConfigBean {
 
     /**是否最大化窗口, 优先级:1*/
     var maximize: Boolean = true
@@ -23,4 +23,11 @@ class WindowBean {
      * [com.angcyo.selenium.parse.RectParse.parse]
      * */
     var rect: String? = null
+
+    /**浏览器页面加载策略
+     * [org.openqa.selenium.PageLoadStrategy.NONE]
+     * [org.openqa.selenium.PageLoadStrategy.EAGER]
+     * [org.openqa.selenium.PageLoadStrategy.NORMAL]
+     * */
+    var pageLoadStrategy: String? = "eager"
 }
