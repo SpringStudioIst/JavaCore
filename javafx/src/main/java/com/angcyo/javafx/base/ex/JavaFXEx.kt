@@ -54,6 +54,8 @@ fun isFxApplicationThread() = Platform.isFxApplicationThread()
 inline fun <reified Controller : BaseController> ctl(): Controller? =
     BaseController.controllerHolder[Controller::class.java] as? Controller
 
+inline fun <reified Controller : BaseController> controller(): Controller? = ctl()
+
 /**通过[Node]获取所在的舞台*/
 fun Node.getStage() = scene?.window as? Stage
 
