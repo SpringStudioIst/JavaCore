@@ -288,3 +288,33 @@ fun strEquals(a: CharSequence?, b: CharSequence?): Boolean {
         }
     } else false
 }
+
+/**[positive] 是否只获取正数, 否则会支持负数*/
+fun String?.getLongNum(positive: Boolean = false) = if (positive)
+    this?.patternList("\\d+")?.firstOrNull()?.toLongOrNull()
+else
+    this?.patternList("[-]?\\d+")?.firstOrNull()?.toLongOrNull()
+
+/**[positive] 是否只获取正数, 否则会支持负数*/
+fun String?.getFloatNum(positive: Boolean = false) = if (positive)
+    this?.patternList("[\\d.]*\\d+")?.firstOrNull()?.toFloatOrNull()
+else
+    this?.patternList("[-]?[\\d.]*\\d+")?.firstOrNull()?.toFloatOrNull()
+
+/**获取分割字符串[partition]之前的全部字符串*/
+fun String.subStart(partition: String, ignoreCase: Boolean = true): String {
+    val indexOf = indexOf(partition, 0, ignoreCase)
+    if (indexOf == -1) {
+        return this
+    }
+    return substring(0, indexOf)
+}
+
+/**获取分割字符串[partition]之后的全部字符串*/
+fun String.subEnd(partition: String, ignoreCase: Boolean = true): String {
+    val indexOf = indexOf(partition, 0, ignoreCase)
+    if (indexOf == -1) {
+        return this
+    }
+    return substring(indexOf + 1, length)
+}

@@ -6,15 +6,16 @@ let w = args[2]
 let h = args[3]
 
 //创建元素
-let id = "tipNode"
-let divNode = document.getElementById(id);
-if (!divNode) {
-    divNode = document.createElement("div");
-    divNode.style.position = 'absolute'
-    divNode.style.zIndex = 999999
-    divNode.id = "tipNode"
-    document.body.append(divNode)
-}
+//let id = "tipNode"
+//let divNode = document.getElementById(id);
+//if (!divNode) {
+let divNode = document.createElement("div");
+//divNode.id = "tipNode"
+divNode.style.position = 'absolute'
+divNode.style.zIndex = 999999
+divNode.classList.add("tipNode")
+document.body.append(divNode)
+//}
 
 //更改元素位置
 divNode.style.left = '0px'
@@ -24,6 +25,7 @@ divNode.style.height = '100%'
 
 //样式
 divNode.style.border = '0.2rem solid red'
+divNode.style.pointerEvents = 'none'
 
 //动画
 divNode.style.transition = 'all 0.3s linear'

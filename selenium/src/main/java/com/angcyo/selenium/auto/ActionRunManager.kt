@@ -1,6 +1,7 @@
 package com.angcyo.selenium.auto
 
 import com.angcyo.library.ex.nowTime
+import com.angcyo.selenium.PlaceholderWebElement
 import com.angcyo.selenium.auto.action.StartAction
 import com.angcyo.selenium.bean.ActionBean
 
@@ -32,6 +33,15 @@ class ActionRunManager(val control: BaseControl) {
     /**执行结束的时间, 毫秒*/
     var _endTime: Long = 0
 
+    /**重置状态*/
+    fun reset() {
+        _startTime = 0
+        _endTime = 0
+        _nextTime = 0
+        actionIndex = -1
+        _nextActionIndex = -1
+    }
+
     /**开始执行[ActionBean]*/
     fun run() {
         val driver = control.driver
@@ -41,7 +51,7 @@ class ActionRunManager(val control: BaseControl) {
             if (actionIndex < 0) {
                 _nextActionIndex = 0
                 _startTime = nowTime()
-                StartAction().runAction(control)
+                StartAction().runAction(control, PlaceholderWebElement(), "start")
             } else {
                 //_nextActionIndex = _currentActionIndex + 1
                 val nextAction = nextActionBean

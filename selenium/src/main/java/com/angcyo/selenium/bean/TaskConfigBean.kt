@@ -29,5 +29,5 @@ class TaskConfigBean {
      * [org.openqa.selenium.PageLoadStrategy.EAGER]
      * [org.openqa.selenium.PageLoadStrategy.NORMAL]
      * */
-    var pageLoadStrategy: String? = "eager"
+    var pageLoadStrategy: String? = "none"
 }

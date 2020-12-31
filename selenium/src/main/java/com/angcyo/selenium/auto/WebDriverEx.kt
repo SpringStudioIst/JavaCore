@@ -12,7 +12,7 @@ import java.time.Duration
  * @author angcyo
  * @date 2020/12/30
  */
-const val TAGS = "span a i li p ul"
+const val TAGS = "span a button i li p ul"
 
 /**枚举查找[WebElement]by[TagName]*/
 fun String.eachTagWebElement(context: SearchContext, action: WebElement.() -> Unit) {
@@ -41,7 +41,7 @@ fun SearchContext.findByText(text: String, tags: String = TAGS): List<WebElement
 /**通过标签[TAG]进行匹配元素*/
 fun SearchContext.findByTag(
     tags: String = TAGS,
-    predicate: (WebElement) -> Boolean = { true }
+    predicate: (WebElement) -> Boolean = { tags.contains(it.tagName) }
 ): List<WebElement> {
     val result = mutableListOf<WebElement>()
     tags.eachTagWebElement(this) {

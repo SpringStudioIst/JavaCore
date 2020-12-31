@@ -1,6 +1,8 @@
 package com.angcyo.selenium.auto
 
 import com.angcyo.library.ex.sleep
+import com.angcyo.log.L
+import com.angcyo.selenium.auto.AutoControl.Companion.STATE_PAUSE
 import com.angcyo.selenium.auto.AutoControl.Companion.STATE_RUNNING
 import com.angcyo.selenium.bean.TaskBean
 import javafx.beans.property.IntegerPropertyBase
@@ -34,6 +36,7 @@ class AutoControl : BaseControl(), Runnable {
         const val STATE_NORMAL = 0
         const val STATE_RUNNING = 1
         const val STATE_FINISH = 2
+        const val STATE_PAUSE = 9
         const val STATE_STOP = 10
     }
 
@@ -60,6 +63,7 @@ class AutoControl : BaseControl(), Runnable {
     fun _start(task: TaskBean) {
         _currentThread?.interrupt()
         _controlState.set(STATE_RUNNING)
+        actionRunManager.reset()
         startInner(task)
         tipAction?.invoke(ControlTip().apply {
             title = "请稍等..."
@@ -92,6 +96,20 @@ class AutoControl : BaseControl(), Runnable {
         driver = null
     }
 
+    /**暂停*/
+    fun pause() {
+        if (_controlState.get() == STATE_RUNNING) {
+            _controlState.set(STATE_PAUSE)
+        }
+    }
+
+    /**恢复*/
+    fun resume() {
+        if (_controlState.get() == STATE_PAUSE) {
+            _controlState.set(STATE_RUNNING)
+        }
+    }
+
     override fun finish() {
         super.finish()
         _controlState.set(STATE_FINISH)
@@ -103,7 +121,12 @@ class AutoControl : BaseControl(), Runnable {
         while (!_controlState.get().isControlEnd()) {
             if (_controlState.get() == STATE_RUNNING) {
                 //正在运行
-                actionRunManager.run()
+                try {
+                    actionRunManager.run()
+                } catch (e: Exception) {
+                    L.e("异常:$e")
+                    e.printStackTrace()
+                }
                 if (actionRunManager.nextActionBean != null) {
                     //还有下一个需要执行, 则不延迟
                     sleep(actionRunManager._nextTime)
@@ -117,7 +140,9 @@ class AutoControl : BaseControl(), Runnable {
 }
 
 /**控制器是否已经开始*/
-fun Int.isControlStart() = this == STATE_RUNNING
+fun Number.isControlStart() = this == STATE_RUNNING || this == STATE_PAUSE
+
+fun Number.isControlPause() = this == STATE_PAUSE
 
 /**控制器没有在运行*/
-fun Int.isControlEnd() = this == AutoControl.STATE_STOP || this == AutoControl.STATE_FINISH
+fun Number.isControlEnd() = this == AutoControl.STATE_STOP || this == AutoControl.STATE_FINISH

@@ -1,10 +1,14 @@
 package com.angcyo.selenium.auto
 
 import com.angcyo.log.L
+import com.angcyo.selenium.auto.action.BaseAction
+import com.angcyo.selenium.auto.action.ClickAction
+import com.angcyo.selenium.auto.action.InputAction
 import com.angcyo.selenium.bean.ActionBean
 import com.angcyo.selenium.bean.TaskBean
 import com.angcyo.selenium.js.exeJs
 import com.angcyo.selenium.parse.AutoParse
+import com.angcyo.selenium.parse.HandleResult
 import com.angcyo.selenium.toPx
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
@@ -37,6 +41,14 @@ open class BaseControl {
 
     val _autoParse = AutoParse()
 
+    //具体的执行操作
+    val registerActionList = mutableListOf<BaseAction>()
+
+    init {
+        registerActionList.add(ClickAction())
+        registerActionList.add(InputAction())
+    }
+
     open fun startInner(task: TaskBean) {
         _currentTaskBean = task
     }
@@ -49,8 +61,7 @@ open class BaseControl {
             val elementList = _autoParse.parseSelector(this, actionBean.check?.event)
             showElementTip(elementList)
             if (elementList.isEmpty()) {
-                logAction?.invoke("[event]未匹配到元素")
-
+                logAction?.invoke("[event]未匹配到元素:${actionBean.check?.event}")
                 //未找到元素
                 val handleResult = _autoParse.handle(this, actionBean.check?.other)
                 if (!handleResult.success) {
@@ -62,7 +73,7 @@ open class BaseControl {
             } else {
                 //找到了目标元素
                 logAction?.invoke(buildString {
-                    appendLine("[event]匹配到元素:")
+                    appendLine("[event]匹配到元素(${elementList.size})↓")
                     elementList.forEach {
                         appendLine(it.toStr())
                     }
@@ -70,6 +81,7 @@ open class BaseControl {
                 val handleResult = _autoParse.handle(this, actionBean.check?.handle, elementList)
                 if (handleResult.success) {
                     //处理成功
+                    showElementTip(handleResult.elementList)
                     actionRunManager.next()
                 } else {
                     //未处理成功
@@ -88,12 +100,41 @@ open class BaseControl {
 
     /**调用js, 显示选择的元素提示*/
     fun showElementTip(list: List<WebElement>?) {
-        list?.forEach {
-            val rect = it.rect
-            (driver as? RemoteWebDriver)?.exeJs(
-                "append_tip.js",
-                rect.x.toPx(), rect.y.toPx(), rect.width.toPx(), rect.height.toPx()
-            )
+        (driver as? RemoteWebDriver)?.let { web ->
+            //先移除所有之前的提示
+            web.exeJs("remove_all_tip.js")
+            //再添加新的提示
+            list?.forEach {
+                try {
+                    val rect = it.rect
+                    web.exeJs("append_tip.js", rect.x.toPx(), rect.y.toPx(), rect.width.toPx(), rect.height.toPx())
+                } catch (e: Exception) {
+                    L.w(e)
+                }
+            }
         }
+    }
+
+    /**执行动作*/
+    fun handleAction(element: WebElement, action: String?): HandleResult {
+        val result = HandleResult()
+        val elementList = mutableListOf<WebElement>()
+        registerActionList.forEach {
+            if (it.interceptAction(this, action)) {
+                it.runAction(this, element, action ?: "").apply {
+                    result.success = success || result.success
+                    if (success) {
+                        //把处理成功的元素收集起来
+                        if (!elementList.containsAll(this.elementList ?: emptyList())) {
+                            elementList.addAll(this.elementList!!)
+                        }
+                    }
+                }
+            }
+        }
+        if (result.success) {
+            result.elementList = elementList
+        }
+        return result
     }
 }

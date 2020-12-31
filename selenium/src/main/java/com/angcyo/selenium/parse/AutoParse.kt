@@ -1,6 +1,7 @@
 package com.angcyo.selenium.parse
 
 import com.angcyo.javafx.base.OSInfo
+import com.angcyo.library.ex.getLongNum
 import com.angcyo.library.ex.patternList
 import com.angcyo.log.L
 import com.angcyo.selenium.auto.BaseControl
@@ -154,6 +155,57 @@ class AutoParse {
         }
     }
 
+    /**解析文本
+     * $0 从[com.angcyo.selenium.bean.TaskBean.wordList] 取第一个
+     * $-2 从[com.angcyo.selenium.bean.TaskBean.wordList] 取倒数第二个
+     * $0~$-2 取范围内的字符
+     * */
+    fun parseText(control: BaseControl, arg: String?): List<String> {
+        if (arg.isNullOrEmpty()) {
+            return emptyList()
+        }
+        val wordList = control._currentTaskBean?.wordList ?: emptyList()
+        val result = mutableListOf<String>()
+        val indexStringList = arg.patternList("\\$[-]?\\d+")
+        if (indexStringList.isNotEmpty()) {
+            //$xxx 的情况
+            if (arg.havePartition()) {
+                //$0~$1
+                if (indexStringList.size >= 2) {
+                    val startIndex = indexStringList[0].getLongNum()?.revise(wordList.size) ?: 0
+                    val endIndex = indexStringList[1].getLongNum()?.revise(wordList.size) ?: 0
+
+                    wordList.forEachIndexed { index, word ->
+                        if (index in startIndex..endIndex) {
+                            result.add(word)
+                        }
+                    }
+                } else {
+                    indexStringList.forEach { indexString ->
+                        indexString.getLongNum()?.let { index ->
+                            wordList.getOrNull(index.toInt())?.let { word ->
+                                result.add(word)
+                            }
+                        }
+                    }
+                }
+            } else {
+                //$0
+                indexStringList.forEach { indexString ->
+                    indexString.getLongNum()?.let { index ->
+                        wordList.getOrNull(index.toInt())?.let { word ->
+                            result.add(word)
+                        }
+                    }
+                }
+            }
+        } else {
+            //不包含$
+            result.add(arg)
+        }
+        return result
+    }
+
     /**选择器解析*/
     fun _selectorParse(context: SearchContext, selectorBean: List<SelectorBean>, result: MutableList<WebElement>) {
         selectorBean.forEach {
@@ -177,7 +229,7 @@ class AutoParse {
 
         //需要过滤
         if (selectorBean.filter != null) {
-            list.removeAll(_filterElement(list, selectorBean.filter!!))
+            list.removeAll(_filterElement(list, selectorBean.filter))
         }
 
         //递归处理
@@ -195,9 +247,25 @@ class AutoParse {
 
     /**
      * 过滤元素
+     * 返回过滤之后的元素集合
+     * */
+    fun _filterElement(list: List<WebElement>?, filterBean: FilterBean?): List<WebElement> {
+        val removeList = _filterElementByRemove(list, filterBean)
+        return list?.filter { !removeList.contains(it) } ?: emptyList()
+    }
+
+    /**
+     * 过滤元素
      * 返回不满足条件的元素集合
      * */
-    fun _filterElement(list: List<WebElement>, filterBean: FilterBean): List<WebElement> {
+    fun _filterElementByRemove(list: List<WebElement>?, filterBean: FilterBean?): List<WebElement> {
+        if (list == null) {
+            return emptyList()
+        }
+        if (filterBean == null) {
+            return list
+        }
+
         //不满足条件的元素
         val removeList = mutableListOf<WebElement>()
 
@@ -285,7 +353,76 @@ class AutoParse {
         val result = HandleResult()
         if (handleList.isNullOrEmpty()) {
             result.success = true
+        } else {
+            //处理
+
+            //处理成功了的元素列表
+            val handleElementList = mutableListOf<WebElement>()
+            for (handleBean in handleList) {
+                val handleResult = handle(control, handleBean, originList)
+                result.success = handleResult.success || result.success
+
+                if (handleResult.success) {
+                    handleElementList.addAll(handleResult.elementList ?: emptyList())
+                }
+                if (handleBean.jump) {
+                    //跳过后续处理
+                    break
+                }
+                if (handleBean.jumpOnSuccess && handleResult.success) {
+                    //成功之后跳过后续处理
+                    break
+                }
+            }
+
+            //总体处理成功
+            if (result.success) {
+                result.elementList = handleElementList
+            }
         }
+        return result
+    }
+
+    /**执行[HandleBean]*/
+    fun handle(control: BaseControl, handleBean: HandleBean, originList: List<WebElement>? = null): HandleResult {
+        val result = HandleResult()
+
+        //需要操作的元素
+        val elementList: List<WebElement>? = if (handleBean.selectList == null) {
+            //如果没有重新执行选择列表, 则使用之前选择的元素
+            originList
+        } else {
+            //重新选择元素
+            parseSelector(control, handleBean.selectList)
+        }
+
+        //满足过滤条件之后, 需要处理的元素集合
+        val filterElementList = _filterElement(elementList, handleBean.filter)
+
+        //处理成功了的元素列表
+        val handleElementList = mutableListOf<WebElement>()
+        filterElementList.forEach { element ->
+            handleBean.actionList?.forEach {
+                control.handleAction(element, it).apply {
+                    result.success = success || result.success
+                    if (success) {
+                        //把处理成功的元素收集起来
+                        if (!handleElementList.containsAll(this.elementList ?: emptyList())) {
+                            handleElementList.addAll(this.elementList!!)
+                        }
+                    }
+                }
+            }
+        }
+        if (result.success) {
+            result.elementList = handleElementList
+        }
+
+        //后置处理
+        if (handleBean.ignore) {
+            result.success = false
+        }
+
         return result
     }
 }

@@ -20,6 +20,7 @@ fun String?.havePartition(text: CharSequence = "~") = have(text)
 
 /**修正索引, 比如是负数的索引*/
 fun Int.revise(size: Int) = if (this < 0) this + size else this
+fun Long.revise(size: Int) = if (this < 0) this + size else this
 
 /**列表中的每一项, 都需要匹配返回一个非空的集合, 最终才会合并返回所有的集合*/
 fun <T, R> List<T>.eachMatchItem(action: (T) -> List<R>): List<R> {
