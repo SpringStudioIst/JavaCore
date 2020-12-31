@@ -3,6 +3,7 @@ package com.angcyo.library.ex
 import java.awt.image.BufferedImage
 import java.io.InputStream
 import java.net.URL
+import java.util.concurrent.CountDownLatch
 import javax.imageio.ImageIO
 
 /**
@@ -95,4 +96,12 @@ fun Any.getString(name: String): String? {
 /**休眠*/
 fun sleep(millis: Long = 160) {
     Thread.sleep(millis)
+}
+
+/**异步代码, 同步执行. 会阻塞当前线程*/
+fun <R> sync(count: Int = 1, action: (CountDownLatch) -> R?): R? {
+    val latch = CountDownLatch(count)
+    val result = action(latch)
+    latch.await()
+    return result
 }

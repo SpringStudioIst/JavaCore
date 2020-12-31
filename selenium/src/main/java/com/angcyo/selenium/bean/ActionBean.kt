@@ -17,6 +17,9 @@ data class ActionBean(
     /**操作的描述*/
     var des: String? = null,
 
+    /**是否激活[ActionBean], 未激活直接跳过执行*/
+    var enable: Boolean = true,
+
     /**
      * 控制自身执行启动的延迟
      * [com.angcyo.selenium.parse.TimeParse.parse]

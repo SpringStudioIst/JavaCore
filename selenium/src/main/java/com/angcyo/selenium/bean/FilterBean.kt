@@ -19,4 +19,15 @@ data class FilterBean(
     /**如果元素不包含指定的元素
      * 匹配顺序:3*/
     var notContainList: List<SelectorBean>? = null,
+
+    /**在当前元素的附近, 查找相对定位的元素
+     * 格式 [tagName:xxx] [tagName:xxx:0~-2] 结果当中取第几个
+     * above 元素上
+     * below 元素下
+     * toLeftOf 元素左
+     * toRightOf 元素右
+     * near 附近
+     * https://www.selenium.dev/documentation/zh-cn/getting_started_with_webdriver/locating_elements/
+     */
+    var relativeBy: String? = null
 )

@@ -1,5 +1,6 @@
 package com.angcyo.selenium.auto.action
 
+import com.angcyo.selenium.DriverWebElement
 import com.angcyo.selenium.auto.BaseControl
 import com.angcyo.selenium.parse.AutoParse
 import com.angcyo.selenium.parse.HandleResult
@@ -16,14 +17,27 @@ class StartAction : BaseAction() {
     }
 
     override fun runAction(control: BaseControl, element: WebElement, action: String): HandleResult {
+        val result = HandleResult()
+
         //配置window
         AutoParse.configWindow(control.driver!!, control._currentTaskBean!!.config)
 
         //启动网页
-        control.driver?.get(control._currentTaskBean?.url)
-
-        return HandleResult().apply {
-            success = true
+        val url = control._currentTaskBean?.url
+        control.driver?.apply {
+            if (!url.isNullOrBlank()) {
+                get(url)
+                result.success = true
+                result.elementList = listOf(DriverWebElement())
+            }
         }
+
+        // 简便的方法
+        //driver.get("https://selenium.dev");
+
+        // 更长的方法
+        //driver.navigate().to("https://selenium.dev");
+
+        return result
     }
 }

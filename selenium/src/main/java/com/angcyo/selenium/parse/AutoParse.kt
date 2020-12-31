@@ -4,6 +4,7 @@ import com.angcyo.javafx.base.OSInfo
 import com.angcyo.library.ex.getLongNum
 import com.angcyo.library.ex.patternList
 import com.angcyo.log.L
+import com.angcyo.selenium.DriverWebElement
 import com.angcyo.selenium.auto.BaseControl
 import com.angcyo.selenium.auto.TAGS
 import com.angcyo.selenium.auto.findByCss
@@ -14,6 +15,7 @@ import com.angcyo.selenium.bean.SelectorBean
 import com.angcyo.selenium.bean.TaskConfigBean
 import com.angcyo.selenium.isValid
 import org.openqa.selenium.*
+import org.openqa.selenium.support.locators.RelativeLocator.withTagName
 import kotlin.math.max
 import kotlin.random.Random
 
@@ -81,7 +83,7 @@ class AutoParse {
             return if (OSInfo.isMacOS) {
                 Random.nextLong(1000, 3000)
             } else {
-                Random.nextLong(2000, 7000)
+                Random.nextLong(2000, 4000)
             }
         }
     }
@@ -164,14 +166,19 @@ class AutoParse {
         if (arg.isNullOrEmpty()) {
             return emptyList()
         }
-        val wordList = control._currentTaskBean?.wordList ?: emptyList()
         val result = mutableListOf<String>()
+
+        var isHandle = false
+
+        //$0~$-2
         val indexStringList = arg.patternList("\\$[-]?\\d+")
         if (indexStringList.isNotEmpty()) {
+            val wordList = control._currentTaskBean?.wordList ?: emptyList()
             //$xxx 的情况
             if (arg.havePartition()) {
                 //$0~$1
                 if (indexStringList.size >= 2) {
+                    isHandle = true
                     val startIndex = indexStringList[0].getLongNum()?.revise(wordList.size) ?: 0
                     val endIndex = indexStringList[1].getLongNum()?.revise(wordList.size) ?: 0
 
@@ -181,6 +188,7 @@ class AutoParse {
                         }
                     }
                 } else {
+                    isHandle = true
                     indexStringList.forEach { indexString ->
                         indexString.getLongNum()?.let { index ->
                             wordList.getOrNull(index.toInt())?.let { word ->
@@ -191,6 +199,7 @@ class AutoParse {
                 }
             } else {
                 //$0
+                isHandle = true
                 indexStringList.forEach { indexString ->
                     indexString.getLongNum()?.let { index ->
                         wordList.getOrNull(index.toInt())?.let { word ->
@@ -199,10 +208,24 @@ class AutoParse {
                     }
                 }
             }
-        } else {
-            //不包含$
+        }
+
+        //$[xxx], 在map中获取文本
+        val mapKeyList = arg.patternList("(?<=\\$\\[).+(?=\\])")
+        if (mapKeyList.isNotEmpty()) {
+            isHandle = true
+            mapKeyList.forEach { key ->
+                control._currentTaskBean?.getTextMap?.get(key)?.let { value ->
+                    result.add(value)
+                }
+            }
+        }
+
+        if (!isHandle) {
+            //都未处理
             result.add(arg)
         }
+
         return result
     }
 
@@ -229,7 +252,9 @@ class AutoParse {
 
         //需要过滤
         if (selectorBean.filter != null) {
-            list.removeAll(_filterElement(list, selectorBean.filter))
+            val filterList = _filterElement(list, selectorBean.filter)
+            list.clear()
+            list.addAll(filterList)
         }
 
         //递归处理
@@ -251,7 +276,46 @@ class AutoParse {
      * */
     fun _filterElement(list: List<WebElement>?, filterBean: FilterBean?): List<WebElement> {
         val removeList = _filterElementByRemove(list, filterBean)
-        return list?.filter { !removeList.contains(it) } ?: emptyList()
+        val result = mutableListOf<WebElement>()
+        list?.filterTo(result) { !removeList.contains(it) }
+
+        //相对定位 https://www.selenium.dev/documentation/zh-cn/getting_started_with_webdriver/locating_elements/
+        //above 元素上
+        //below 元素下
+        //toLeftOf 元素左
+        //toRightOf 元素右
+        //near 附近
+        filterBean?.let {
+            if (!it.relativeBy.isNullOrBlank()) {
+                val relativeList = mutableListOf<WebElement>()
+                result.forEach { element ->
+                    val splitList = it.relativeBy.args()
+                    val tagName = splitList.getOrNull(0)
+                    val by = splitList.getOrNull(1)
+                    val indexString = splitList.getOrNull(2)
+                    if (!tagName.isNullOrEmpty()) {
+                        //标签不为空时, 才有效
+                        element.findElements(withTagName(tagName)?.run {
+                            when (by) {
+                                "above" -> above(element)
+                                "below" -> below(element)
+                                "toLeftOf" -> toLeftOf(element)
+                                "toRightOf" -> toRightOf(element)
+                                else -> near(element)
+                            }
+                        })?.eachRangeItem(indexString) { item, isIn ->
+                            if (isIn) {
+                                relativeList.add(item)
+                            }
+                        }
+                    }
+                }
+                //将匹配到的元素返回回去
+                result.clear()
+                result.addAll(relativeList)
+            }
+        }
+        return result
     }
 
     /**
@@ -259,11 +323,8 @@ class AutoParse {
      * 返回不满足条件的元素集合
      * */
     fun _filterElementByRemove(list: List<WebElement>?, filterBean: FilterBean?): List<WebElement> {
-        if (list == null) {
+        if (list == null || filterBean == null) {
             return emptyList()
-        }
-        if (filterBean == null) {
-            return list
         }
 
         //不满足条件的元素
@@ -272,31 +333,9 @@ class AutoParse {
         //过滤筛选步骤1:
         val indexString = filterBean.index
         if (indexString != null) {
-            val intList = indexString.getIntList()
-            if (indexString.havePartition()) {
-                if (intList.size >= 2) {
-                    //有分隔符 0~-2:取从0到倒数第二个
-                    val startIndex = intList[0].revise(list.size)
-                    val endIndex = intList[1].revise(list.size)
-
-                    list.forEachIndexed { index, webElement ->
-                        if (index in startIndex..endIndex) {
-                            //需要选择的目标元素, 不需要过滤
-                        } else {
-                            //需要移除的元素
-                            removeList.add(webElement)
-                        }
-                    }
-                }
-            } else {
-                //如果没有分隔符 1 2 3:取第1个 第2个 第3个
-                list.forEachIndexed { index, webElement ->
-                    if (index in intList) {
-                        //需要选择的目标元素, 不需要过滤
-                    } else {
-                        //需要移除的元素
-                        removeList.add(webElement)
-                    }
+            list.eachRangeItem(indexString) { item, isIn ->
+                if (!isIn) {
+                    removeList.add(item)
                 }
             }
         }
@@ -359,7 +398,7 @@ class AutoParse {
             //处理成功了的元素列表
             val handleElementList = mutableListOf<WebElement>()
             for (handleBean in handleList) {
-                val handleResult = handle(control, handleBean, originList)
+                val handleResult = handle(control, handleBean, originList) //执行单个[HandleBean]
                 result.success = handleResult.success || result.success
 
                 if (handleResult.success) {
@@ -393,7 +432,12 @@ class AutoParse {
             originList
         } else {
             //重新选择元素
-            parseSelector(control, handleBean.selectList)
+            if (handleBean.selectList == null) {
+                //之前没有目标元素, 本次又没有指定选择器, 则使用根元素
+                listOf(DriverWebElement())
+            } else {
+                parseSelector(control, handleBean.selectList)
+            }
         }
 
         //满足过滤条件之后, 需要处理的元素集合

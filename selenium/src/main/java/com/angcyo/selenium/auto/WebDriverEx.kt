@@ -2,6 +2,8 @@ package com.angcyo.selenium.auto
 
 import com.angcyo.library.ex.have
 import com.angcyo.log.L
+import com.angcyo.selenium.DriverWebElement
+import com.angcyo.selenium.PlaceholderWebElement
 import org.openqa.selenium.*
 import org.openqa.selenium.remote.RemoteWebElement
 import org.openqa.selenium.support.ui.FluentWait
@@ -92,8 +94,19 @@ fun SearchContext.waitBy(
     return result
 }
 
+/**是否是有效的[WebElement]*/
+fun WebElement.isValidElement(): Boolean {
+    if (this is DriverWebElement || this is PlaceholderWebElement) {
+        return false
+    }
+    return true
+}
 
+/**toString*/
 fun WebElement.toStr(): String {
+    if (this is DriverWebElement || this is PlaceholderWebElement) {
+        return this.toString()
+    }
     return buildString {
         try {
             append("标签:${tagName}")

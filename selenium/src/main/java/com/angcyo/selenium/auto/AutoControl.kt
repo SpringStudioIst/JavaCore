@@ -4,6 +4,7 @@ import com.angcyo.library.ex.sleep
 import com.angcyo.log.L
 import com.angcyo.selenium.auto.AutoControl.Companion.STATE_PAUSE
 import com.angcyo.selenium.auto.AutoControl.Companion.STATE_RUNNING
+import com.angcyo.selenium.bean.ActionBean
 import com.angcyo.selenium.bean.TaskBean
 import javafx.beans.property.IntegerPropertyBase
 import org.openqa.selenium.PageLoadStrategy
@@ -67,7 +68,7 @@ class AutoControl : BaseControl(), Runnable {
         startInner(task)
         tipAction?.invoke(ControlTip().apply {
             title = "请稍等..."
-            des = "即将执行:${_currentTaskBean?.title}(${_currentTaskBean?.actionList?.size})"
+            des = "即将执行:${_currentTaskBean?.title}(${actionRunManager.actionSize()})"
         })
         _currentThread = Thread(this).apply {
             start()
@@ -137,6 +138,21 @@ class AutoControl : BaseControl(), Runnable {
             }
         }
     }
+}
+
+/**获取下一个有效的[ActionBean]*/
+fun List<ActionBean>.nextAction(index: Int = 0): ActionBean? {
+    var result: ActionBean? = null
+    for (i in indices) {
+        if (i >= index) {
+            val bean = getOrNull(i)
+            if (bean?.enable == true) {
+                result = bean
+                break
+            }
+        }
+    }
+    return result
 }
 
 /**控制器是否已经开始*/

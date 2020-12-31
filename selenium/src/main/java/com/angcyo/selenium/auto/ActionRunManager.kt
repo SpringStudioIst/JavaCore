@@ -25,7 +25,7 @@ class ActionRunManager(val control: BaseControl) {
     var _nextActionIndex = -1
 
     val nextActionBean: ActionBean?
-        get() = tempActionList.firstOrNull() ?: control._currentTaskBean?.actionList?.getOrNull(_nextActionIndex)
+        get() = tempActionList.nextAction() ?: control._currentTaskBean?.actionList?.nextAction(_nextActionIndex)
 
     /**执行开始的时间, 毫秒*/
     var _startTime: Long = 0
@@ -62,7 +62,7 @@ class ActionRunManager(val control: BaseControl) {
                     control.finish()
                 } else {
                     if (nextAction.check == null) {
-                        next()
+                        next(nextAction)
                     } else {
                         control.runAction(nextAction, control._currentTaskBean?.backActionList)
                     }
@@ -79,9 +79,19 @@ class ActionRunManager(val control: BaseControl) {
     }
 
     /**执行下一个*/
-    fun next() {
+    fun next(currentRunActionBean: ActionBean?) {
+        currentRunActionBean?.let {
+            //从临时action中移除已经执行完成的action,如果有
+            if (tempActionList.firstOrNull() == it) {
+                tempActionList.removeFirstOrNull()
+            }
+        }
         _nextActionIndex = actionIndex + 1
     }
+
+    /**总共需要执行的[ActionBean]的数量*/
+    fun actionSize() = control._currentTaskBean?.actionList?.sumBy { if (it.enable) 1 else 0 }
+        ?: 0 + tempActionList.sumBy { if (it.enable) 1 else 0 }
 
     fun showControlTip() {
         val title = "${control._currentTaskBean?.title}${indexTip()}"
@@ -92,7 +102,7 @@ class ActionRunManager(val control: BaseControl) {
     /**索引指示提示文本*/
     fun indexTip(): String {
         return if (actionIndex >= 0) {
-            "(${actionIndex}/${control._currentTaskBean?.actionList?.size})"
+            "(${actionIndex}/${actionSize()})"
         } else {
             ""
         }

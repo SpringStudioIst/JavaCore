@@ -1,9 +1,8 @@
 package com.angcyo.selenium.auto
 
 import com.angcyo.log.L
-import com.angcyo.selenium.auto.action.BaseAction
-import com.angcyo.selenium.auto.action.ClickAction
-import com.angcyo.selenium.auto.action.InputAction
+import com.angcyo.selenium.DriverWebElement
+import com.angcyo.selenium.auto.action.*
 import com.angcyo.selenium.bean.ActionBean
 import com.angcyo.selenium.bean.TaskBean
 import com.angcyo.selenium.js.exeJs
@@ -45,8 +44,16 @@ open class BaseControl {
     val registerActionList = mutableListOf<BaseAction>()
 
     init {
+        registerActionList.add(BackAction())
         registerActionList.add(ClickAction())
+        registerActionList.add(CodeAction())
+        registerActionList.add(ForwardAction())
+        registerActionList.add(GetAttrAction())
+        registerActionList.add(GetCssAction())
+        registerActionList.add(GetTextAction())
         registerActionList.add(InputAction())
+        registerActionList.add(RefreshAction())
+        registerActionList.add(ToAction())
     }
 
     open fun startInner(task: TaskBean) {
@@ -55,12 +62,16 @@ open class BaseControl {
 
     /**执行动作, [actionBean]无法处理时, 则交给[otherActionList]处理*/
     open fun runAction(actionBean: ActionBean, otherActionList: List<ActionBean>?) {
+        var handleActionResult: HandleResult? = null
         if (actionBean.check == null) {
-            //无效的check, no op
+            //无效的check, 直接操作浏览器Driver
+            handleActionResult = _autoParse.handle(this, actionBean.check?.handle)
         } else {
-            val elementList = _autoParse.parseSelector(this, actionBean.check?.event)
-            showElementTip(elementList)
-            if (elementList.isEmpty()) {
+            val event = actionBean.check?.event
+            val eventElementList =
+                if (event == null) listOf(DriverWebElement()) else _autoParse.parseSelector(this, event)
+            showElementTip(eventElementList)
+            if (eventElementList.isEmpty()) {
                 logAction?.invoke("[event]未匹配到元素:${actionBean.check?.event}")
                 //未找到元素
                 val handleResult = _autoParse.handle(this, actionBean.check?.other)
@@ -73,19 +84,23 @@ open class BaseControl {
             } else {
                 //找到了目标元素
                 logAction?.invoke(buildString {
-                    appendLine("[event]匹配到元素(${elementList.size})↓")
-                    elementList.forEach {
+                    appendLine("[event]匹配到元素(${eventElementList.size})↓")
+                    eventElementList.forEach {
                         appendLine(it.toStr())
                     }
                 })
-                val handleResult = _autoParse.handle(this, actionBean.check?.handle, elementList)
-                if (handleResult.success) {
-                    //处理成功
-                    showElementTip(handleResult.elementList)
-                    actionRunManager.next()
-                } else {
-                    //未处理成功
-                }
+                handleActionResult = _autoParse.handle(this, actionBean.check?.handle, eventElementList)
+            }
+        }
+
+        //处理结果
+        handleActionResult?.apply {
+            if (success) {
+                //处理成功
+                //showElementTip(elementList)
+                actionRunManager.next(actionBean)
+            } else {
+                //未处理成功
             }
         }
     }
@@ -106,8 +121,10 @@ open class BaseControl {
             //再添加新的提示
             list?.forEach {
                 try {
-                    val rect = it.rect
-                    web.exeJs("append_tip.js", rect.x.toPx(), rect.y.toPx(), rect.width.toPx(), rect.height.toPx())
+                    if (it.isValidElement()) {
+                        val rect = it.rect
+                        web.exeJs("append_tip.js", rect.x.toPx(), rect.y.toPx(), rect.width.toPx(), rect.height.toPx())
+                    }
                 } catch (e: Exception) {
                     L.w(e)
                 }
