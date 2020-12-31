@@ -10,13 +10,13 @@ package com.angcyo.selenium.bean
  */
 data class SelectorBean(
 
-    /**通过css选择器获取元素*/
-    var css: String? = null,
+    /**通过css选择器获取元素, 同时满足列表中的所有选择条件*/
+    var cssList: List<String>? = null,
 
-    /**通过文本获取元素, 支持正则表达式.
+    /**通过文本获取元素, 支持正则表达式, 同时满足列表中的所有选择条件
      * 需要指定[tags]
      * */
-    var text: String? = null,
+    var textList: List<String>? = null,
 
     /**通过[text]获取元素时, 需要指定在那些标签中查找文本. 空格分隔多个标签*/
     var tags: String? = null,

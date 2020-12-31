@@ -40,13 +40,13 @@ class AutoControl : BaseControl(), Runnable {
     /**启动控制器*/
     fun start(task: TaskBean): Boolean {
         return if (_currentTaskBean != null && _controlState.get().isControlStart()) {
-            logAction?.invoke(ControlTip().apply {
+            tipAction?.invoke(ControlTip().apply {
                 title = "已有任务在运行"
                 des = _currentTaskBean?.title
             })
             false
         } else if (task.actionList.isNullOrEmpty()) {
-            logAction?.invoke(ControlTip().apply {
+            tipAction?.invoke(ControlTip().apply {
                 title = "无操作需要执行"
             })
             false
@@ -61,9 +61,9 @@ class AutoControl : BaseControl(), Runnable {
         _currentThread?.interrupt()
         _controlState.set(STATE_RUNNING)
         startInner(task)
-        logAction?.invoke(ControlTip().apply {
+        tipAction?.invoke(ControlTip().apply {
             title = "请稍等..."
-            des = "即将执行:${_currentTaskBean?.title}"
+            des = "即将执行:${_currentTaskBean?.title}(${_currentTaskBean?.actionList?.size})"
         })
         _currentThread = Thread(this).apply {
             start()
@@ -92,6 +92,11 @@ class AutoControl : BaseControl(), Runnable {
         driver = null
     }
 
+    override fun finish() {
+        super.finish()
+        _controlState.set(STATE_FINISH)
+    }
+
     /**线程运行*/
     override fun run() {
         _initDriver()
@@ -99,8 +104,10 @@ class AutoControl : BaseControl(), Runnable {
             if (_controlState.get() == STATE_RUNNING) {
                 //正在运行
                 actionRunManager.run()
-                println("....${actionRunManager._nextTime}")
-                sleep(actionRunManager._nextTime)
+                if (actionRunManager.nextActionBean != null) {
+                    //还有下一个需要执行, 则不延迟
+                    sleep(actionRunManager._nextTime)
+                }
             } else {
                 //no op
                 sleep()

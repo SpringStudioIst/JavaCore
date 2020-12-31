@@ -135,9 +135,9 @@ fun WebElement.sendKeysSafe(vararg keysToSend: CharSequence?): Boolean {
 fun Rectangle.toStr(): String {
     return buildString {
         append("(")
-        append("$x, $y")
-        append(":")
-        append("$width, $height")
+        append("$x,$y")
+        append("~")
+        append("$width,$height")
         append(")")
     }
 }

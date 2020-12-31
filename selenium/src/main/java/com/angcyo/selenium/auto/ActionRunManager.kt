@@ -3,7 +3,6 @@ package com.angcyo.selenium.auto
 import com.angcyo.library.ex.nowTime
 import com.angcyo.selenium.auto.action.StartAction
 import com.angcyo.selenium.bean.ActionBean
-import com.angcyo.selenium.parse.TimeParse
 
 /**
  * 用于执行[ActionBean]
@@ -48,6 +47,7 @@ class ActionRunManager(val control: BaseControl) {
                 val nextAction = nextActionBean
                 if (nextAction == null) {
                     //执行结束
+                    actionIndex = control._currentTaskBean?.actionList?.size ?: actionIndex
                     _endTime = nowTime()
                     control.finish()
                 } else {
@@ -76,7 +76,7 @@ class ActionRunManager(val control: BaseControl) {
     fun showControlTip() {
         val title = "${control._currentTaskBean?.title}${indexTip()}"
         val des = nextActionBean?.title
-        control.logAction?.invoke(ControlTip(title, des, _nextTime))
+        control.tipAction?.invoke(ControlTip(title, des, _nextTime))
     }
 
     /**索引指示提示文本*/
@@ -91,9 +91,9 @@ class ActionRunManager(val control: BaseControl) {
     /**下一个[ActionBean]需要执行的时间间隔*/
     fun nextActionTime(): Long {
         return if (tempActionList.isNullOrEmpty()) {
-            TimeParse().parse(nextActionBean?.start)
+            control._autoParse.parseTime(nextActionBean?.start)
         } else {
-            TimeParse().parse(tempActionList.first().start)
+            control._autoParse.parseTime(tempActionList.first().start)
         }
     }
 

@@ -9,3 +9,6 @@ package com.angcyo.selenium
 fun Int.isValid() = this != Int.MIN_VALUE
 
 fun Float.isValid() = isFinite() && this != Float.MIN_VALUE
+
+/**转成css中的px单位*/
+fun Any.toPx() = "${this}px"

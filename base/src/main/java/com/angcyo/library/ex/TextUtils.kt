@@ -34,9 +34,7 @@ object TextUtils {
      * Returns true if the parameter is null or of zero length
      */
     fun isEmpty(s: CharSequence?): Boolean {
-        return if (s == null) {
-            true
-        } else s.length == 0
+        return s?.isEmpty() ?: true
     }
 
     /**
@@ -46,8 +44,8 @@ object TextUtils {
         if (s == null) {
             return true
         }
-        for (i in 0 until s.length) {
-            if (!Character.isWhitespace(s[i])) {
+        for (element in s) {
+            if (!Character.isWhitespace(element)) {
                 return false
             }
         }
@@ -61,8 +59,8 @@ object TextUtils {
         if (s == null) {
             return false
         }
-        for (i in 0 until s.length) {
-            if (Character.isWhitespace(s[i])) {
+        for (element in s) {
+            if (Character.isWhitespace(element)) {
                 return true
             }
         }

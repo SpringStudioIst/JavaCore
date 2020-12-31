@@ -1,7 +1,7 @@
 package com.angcyo.selenium.auto.action
 
 import com.angcyo.selenium.auto.BaseControl
-import com.angcyo.selenium.parse.RectParse
+import com.angcyo.selenium.parse.AutoParse
 
 /**
  * Email:angcyo@126.com
@@ -12,7 +12,7 @@ class StartAction : BaseAction() {
     override fun runAction(control: BaseControl) {
         super.runAction(control)
         //配置window
-        RectParse.configWindow(control.driver!!, control._currentTaskBean!!.config)
+        AutoParse.configWindow(control.driver!!, control._currentTaskBean!!.config)
 
         //启动网页
         control.driver?.get(control._currentTaskBean?.url)

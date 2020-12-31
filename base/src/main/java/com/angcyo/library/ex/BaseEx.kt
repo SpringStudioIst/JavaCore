@@ -82,6 +82,16 @@ fun Any.getImage(imageName: String): BufferedImage? {
     }
 }
 
+/**从资源中获取字符串*/
+fun Any.getString(name: String): String? {
+    return try {
+        getResourceAsStream(name)?.bufferedReader()?.readText()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
 /**休眠*/
 fun sleep(millis: Long = 160) {
     Thread.sleep(millis)
