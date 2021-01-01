@@ -159,6 +159,10 @@ fun File?.isFile(): Boolean = this?.isFile == true
 
 fun File?.isFolder(): Boolean = this?.isDirectory == true
 
+fun String?.readText() = this?.run {
+    File(this).readText()
+}
+
 fun File?.readText() = try {
     if (this?.exists() == true) {
         this.readText(Charsets.UTF_8)

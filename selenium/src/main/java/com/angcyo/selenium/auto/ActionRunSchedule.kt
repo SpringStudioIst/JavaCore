@@ -11,7 +11,7 @@ import com.angcyo.selenium.bean.ActionBean
  * @author angcyo
  * @date 2020/12/30
  */
-class ActionRunManager(val control: BaseControl) {
+class ActionRunSchedule(val control: BaseControl) {
 
     /**当前执行到哪一步*/
     var actionIndex = -1
@@ -42,8 +42,8 @@ class ActionRunManager(val control: BaseControl) {
         _nextActionIndex = -1
     }
 
-    /**开始执行[ActionBean]*/
-    fun run() {
+    /**开始调度执行[ActionBean]*/
+    fun schedule() {
         val driver = control.driver
         val task = control._currentTaskBean
 
@@ -80,13 +80,21 @@ class ActionRunManager(val control: BaseControl) {
 
     /**执行下一个*/
     fun next(currentRunActionBean: ActionBean?) {
+        var nextIndex = actionIndex + 1
         currentRunActionBean?.let {
             //从临时action中移除已经执行完成的action,如果有
             if (tempActionList.firstOrNull() == it) {
                 tempActionList.removeFirstOrNull()
+                nextIndex = actionIndex
             }
         }
-        _nextActionIndex = actionIndex + 1
+        _nextActionIndex = nextIndex
+    }
+
+    fun addNextAction(bean: ActionBean) {
+        if (!tempActionList.contains(bean)) {
+            tempActionList.add(bean)
+        }
     }
 
     /**总共需要执行的[ActionBean]的数量*/

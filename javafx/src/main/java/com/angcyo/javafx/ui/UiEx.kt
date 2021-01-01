@@ -1,8 +1,11 @@
 package com.angcyo.javafx.ui
 
+import com.angcyo.core.component.file.writeTo
 import com.angcyo.javafx.base.ex.getImageFx
 import javafx.scene.control.TabPane
+import javafx.scene.control.TextInputControl
 import javafx.scene.image.ImageView
+import java.io.File
 
 /**
  * Email:angcyo@126.com
@@ -33,4 +36,16 @@ fun TabPane?.switchById(targetTabId: String) {
  * */
 fun ImageView.setImageResource(resImage: String) {
     image = getImageFx(resImage)
+}
+
+/**[filePath]文件全路径*/
+fun TextInputControl.saveOnTextChanged(filePath: String, append: Boolean = false) {
+    saveOnTextChanged(File(filePath), append)
+}
+
+/**当文本改变时, 保存到文件[file]*/
+fun TextInputControl.saveOnTextChanged(file: File, append: Boolean = false) {
+    textProperty().addListener { observable, oldValue, newValue ->
+        newValue?.writeTo(file, append)
+    }
 }

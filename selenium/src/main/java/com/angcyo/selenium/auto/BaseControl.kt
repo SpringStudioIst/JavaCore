@@ -36,7 +36,7 @@ open class BaseControl {
     var _currentTaskBean: TaskBean? = null
 
     /**[ActionBean]执行器*/
-    var actionRunManager: ActionRunManager = ActionRunManager(this)
+    var actionRunSchedule: ActionRunSchedule = ActionRunSchedule(this)
 
     val _autoParse = AutoParse()
 
@@ -98,7 +98,7 @@ open class BaseControl {
             if (success) {
                 //处理成功
                 //showElementTip(elementList)
-                actionRunManager.next(actionBean)
+                actionRunSchedule.next(actionBean)
             } else {
                 //未处理成功
             }
@@ -108,8 +108,8 @@ open class BaseControl {
     /**运行结束*/
     open fun finish() {
         tipAction?.invoke(ControlTip().apply {
-            title = "${_currentTaskBean?.title}${actionRunManager.indexTip()} 执行完成!"
-            des = "耗时:${actionRunManager.duration()}ms"
+            title = "${_currentTaskBean?.title}${actionRunSchedule.indexTip()} 执行完成!"
+            des = "耗时:${actionRunSchedule.duration()}ms"
         })
     }
 

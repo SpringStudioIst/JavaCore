@@ -61,14 +61,16 @@ class AutoControl : BaseControl(), Runnable {
     }
 
     //正式开始
-    fun _start(task: TaskBean) {
+    fun _start(task: TaskBean, restart: Boolean = true) {
         _currentThread?.interrupt()
         _controlState.set(STATE_RUNNING)
-        actionRunManager.reset()
+        if (restart) {
+            actionRunSchedule.reset()
+        }
         startInner(task)
         tipAction?.invoke(ControlTip().apply {
             title = "请稍等..."
-            des = "即将执行:${_currentTaskBean?.title}(${actionRunManager.actionSize()})"
+            des = "即将执行:${_currentTaskBean?.title}(${actionRunSchedule.actionSize()})"
         })
         _currentThread = Thread(this).apply {
             start()
@@ -89,7 +91,7 @@ class AutoControl : BaseControl(), Runnable {
         }
     }
 
-    /**停止控制器*/
+    /**停止控制器, 释放资源*/
     fun stop() {
         _currentThread?.interrupt()
         _controlState.set(STATE_STOP)
@@ -106,8 +108,16 @@ class AutoControl : BaseControl(), Runnable {
 
     /**恢复*/
     fun resume() {
-        if (_controlState.get() == STATE_PAUSE) {
-            _controlState.set(STATE_RUNNING)
+        val state = _controlState.get()
+        when {
+            //如果只是暂停了
+            state == STATE_PAUSE -> _controlState.set(STATE_RUNNING)
+            //线程都退出了
+            state.isControlEnd() -> {
+                _currentTaskBean?.let {
+                    _start(it, false)
+                }
+            }
         }
     }
 
@@ -123,14 +133,14 @@ class AutoControl : BaseControl(), Runnable {
             if (_controlState.get() == STATE_RUNNING) {
                 //正在运行
                 try {
-                    actionRunManager.run()
+                    actionRunSchedule.schedule()
                 } catch (e: Exception) {
                     L.e("异常:$e")
                     e.printStackTrace()
                 }
-                if (actionRunManager.nextActionBean != null) {
+                if (actionRunSchedule.nextActionBean != null) {
                     //还有下一个需要执行, 则不延迟
-                    sleep(actionRunManager._nextTime)
+                    sleep(actionRunSchedule._nextTime)
                 }
             } else {
                 //no op
