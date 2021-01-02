@@ -10,8 +10,8 @@ import org.openqa.selenium.remote.RemoteWebElement
  * @date 2020/12/30
  */
 
-/**启动元素*/
-class DriverWebElement : RemoteWebElement() {
+/**驱动元素*/
+class DriverWebElement : PlaceholderWebElement() {
 
     init {
         setId("DriverWebElement")
@@ -23,8 +23,20 @@ class DriverWebElement : RemoteWebElement() {
 
 }
 
+/**log保持*/
+class LogWebElement(val log: String) : PlaceholderWebElement() {
+
+    init {
+        setId("LogWebElement")
+    }
+
+    override fun toString(): String {
+        return log
+    }
+}
+
 /**占位元素*/
-class PlaceholderWebElement : RemoteWebElement() {
+open class PlaceholderWebElement : RemoteWebElement() {
 
     init {
         setId("PlaceholderWebElement")

@@ -25,7 +25,7 @@ class ActionRunSchedule(val control: BaseControl) {
     var _nextActionIndex = -1
 
     val nextActionBean: ActionBean?
-        get() = tempActionList.nextAction() ?: control._currentTaskBean?.actionList?.nextAction(_nextActionIndex)
+        get() = tempActionList.nextAction() ?: control._currentTaskBean?.actionList?.getOrNull(_nextActionIndex)
 
     /**执行开始的时间, 毫秒*/
     var _startTime: Long = 0
@@ -60,7 +60,11 @@ class ActionRunSchedule(val control: BaseControl) {
                     actionIndex = control._currentTaskBean?.actionList?.size ?: actionIndex
                     _endTime = nowTime()
                     control.finish()
+                } else if (!nextAction.enable) {
+                    //未激活的action, 直接跳过, 执行下一个
+                    next(nextAction)
                 } else {
+                    //正常执行
                     if (nextAction.check == null) {
                         next(nextAction)
                     } else {
@@ -91,6 +95,10 @@ class ActionRunSchedule(val control: BaseControl) {
         _nextActionIndex = nextIndex
     }
 
+    fun clearTempAction() {
+        tempActionList.clear()
+    }
+
     fun addNextAction(bean: ActionBean) {
         if (!tempActionList.contains(bean)) {
             tempActionList.add(bean)
@@ -98,8 +106,8 @@ class ActionRunSchedule(val control: BaseControl) {
     }
 
     /**总共需要执行的[ActionBean]的数量*/
-    fun actionSize() = control._currentTaskBean?.actionList?.sumBy { if (it.enable) 1 else 0 }
-        ?: 0 + tempActionList.sumBy { if (it.enable) 1 else 0 }
+    fun actionSize() = control._currentTaskBean?.actionList?.sumBy { if (it.enable) 1 else 1 }
+        ?: 0 + tempActionList.sumBy { if (it.enable) 1 else 1 }
 
     fun showControlTip() {
         val title = "${control._currentTaskBean?.title}${indexTip()}"
@@ -118,10 +126,11 @@ class ActionRunSchedule(val control: BaseControl) {
 
     /**下一个[ActionBean]需要执行的时间间隔*/
     fun nextActionTime(): Long {
-        return if (tempActionList.isNullOrEmpty()) {
-            control._autoParse.parseTime(nextActionBean?.start)
+        val actionBean = nextActionBean
+        return if (actionBean?.enable == true) {
+            control._autoParse.parseTime(actionBean.start)
         } else {
-            control._autoParse.parseTime(tempActionList.first().start)
+            0
         }
     }
 

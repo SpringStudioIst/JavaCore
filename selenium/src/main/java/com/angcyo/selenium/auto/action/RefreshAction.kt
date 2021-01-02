@@ -15,13 +15,11 @@ class RefreshAction : BaseAction() {
     }
 
     override fun runAction(control: BaseControl, element: WebElement, action: String): HandleResult {
-        val result = HandleResult()
-        result.elementList = listOf(element)
-        control.driver?.navigate()?.apply {
-            refresh()
-            result.success = true
+        return element.actionResult(control) { elementStr ->
+            (control.driver?.navigate()?.run {
+                refresh()
+                true
+            } ?: false) to "刷新网页[${control.driver?.currentUrl}]"
         }
-        control.logAction?.invoke("刷新网页[${control.driver?.currentUrl}]:${result.success}")
-        return result
     }
 }

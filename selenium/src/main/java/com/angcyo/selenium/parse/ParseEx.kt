@@ -51,12 +51,12 @@ fun <T> List<T>.eachRangeItem(indexString: String?, action: (item: T, isIn: Bool
         return result
     }
 
-    val intList = indexString.getIntList()
+    val intList = indexString.getIntList().mapTo(mutableListOf()) { it.revise(size) }
     if (indexString.havePartition()) {
         if (intList.size >= 2) {
             //有分隔符 0~-2:取从0到倒数第二个
-            val startIndex = intList[0].revise(size)
-            val endIndex = intList[1].revise(size)
+            val startIndex = intList[0]
+            val endIndex = intList[1]
 
             forEachIndexed { index, item ->
                 if (index in startIndex..endIndex) {

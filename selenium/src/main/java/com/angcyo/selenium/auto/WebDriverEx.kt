@@ -1,8 +1,8 @@
 package com.angcyo.selenium.auto
 
 import com.angcyo.library.ex.have
+import com.angcyo.library.ex.str
 import com.angcyo.log.L
-import com.angcyo.selenium.DriverWebElement
 import com.angcyo.selenium.PlaceholderWebElement
 import org.openqa.selenium.*
 import org.openqa.selenium.remote.RemoteWebElement
@@ -26,16 +26,23 @@ fun String.eachTagWebElement(context: SearchContext, action: WebElement.() -> Un
 }
 
 /**先通过[Tag]获取标签, 再通过文本进行匹配元素*/
-fun SearchContext.findByText(text: String, tags: String = TAGS): List<WebElement> {
+fun SearchContext.findByText(text: String, tags: String = TAGS, noText: (List<String>) -> Unit = {}): List<WebElement> {
     val result = mutableListOf<WebElement>()
+    val textList = mutableListOf<String>()
     tags.eachTagWebElement(this) {
         try {
+            val s = this.text
+            textList.add(s)
             if (this.text.have(text)) {
                 result.add(this)
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+    if (result.isEmpty() && !tags.contains(" ")) {
+        //未匹配到文本
+        noText(textList)
     }
     return result
 }
@@ -96,7 +103,7 @@ fun SearchContext.waitBy(
 
 /**是否是有效的[WebElement]*/
 fun WebElement.isValidElement(): Boolean {
-    if (this is DriverWebElement || this is PlaceholderWebElement) {
+    if (this is PlaceholderWebElement) {
         return false
     }
     return true
@@ -104,7 +111,7 @@ fun WebElement.isValidElement(): Boolean {
 
 /**toString*/
 fun WebElement.toStr(): String {
-    if (this is DriverWebElement || this is PlaceholderWebElement) {
+    if (this is PlaceholderWebElement) {
         return this.toString()
     }
     return buildString {
@@ -119,6 +126,7 @@ fun WebElement.toStr(): String {
                 append("坐标 inViewPort:${coordinates.inViewPort()} onPage:${coordinates.onPage()} ${coordinates.auxiliary} json:${toJson()}")
             }
         } catch (e: Exception) {
+            L.e("异常:$e")
             e.printStackTrace()
         }
     }
@@ -129,7 +137,7 @@ fun WebElement.clickSafe(): Boolean {
         click()
         true
     } catch (e: Exception) {
-        L.e("异常:${this}")
+        L.e("异常:${this.str()}:$e")
         e.printStackTrace()
         false
     }

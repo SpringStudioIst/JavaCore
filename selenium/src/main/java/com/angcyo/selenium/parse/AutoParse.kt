@@ -24,7 +24,7 @@ import kotlin.random.Random
  * @author angcyo
  * @date 2020/12/31
  */
-class AutoParse {
+class AutoParse(val control: BaseControl? = null) {
 
     var leftPattern = "(?<=l:|left:)([-]?[\\d.]*\\d+)"
     var rightPattern = "(?<=r:|right:)([-]?[\\d.]*\\d+)"
@@ -215,7 +215,7 @@ class AutoParse {
         if (mapKeyList.isNotEmpty()) {
             isHandle = true
             mapKeyList.forEach { key ->
-                control._currentTaskBean?.getTextMap?.get(key)?.let { value ->
+                control._currentTaskBean?.textMap?.get(key)?.let { value ->
                     result.add(value)
                 }
             }
@@ -240,6 +240,39 @@ class AutoParse {
     fun _selectorParse(context: SearchContext, selectorBean: SelectorBean, result: MutableList<WebElement>) {
         val list = mutableListOf<WebElement>()
 
+        //frame
+        if (selectorBean.frame != null && context is WebDriver) {
+            //选择iframe
+            selectorBean.frame?.apply {
+                if (select != null) {
+                    val frameElementList = mutableListOf<WebElement>()
+                    _selectorParse(context, select!!, frameElementList)
+                    frameElementList.firstOrNull()?.let {
+                        control?.logAction?.invoke("选择iframe框架:$select")
+                        _frame = context.switchTo().frame(it)
+                    }
+                }
+                if (_frame == null && !frameId.isNullOrEmpty()) {
+                    control?.logAction?.invoke("选择iframe框架id:$frameId")
+                    _frame = context.switchTo().frame(frameId)
+                }
+                if (_frame == null && !frameName.isNullOrEmpty()) {
+                    control?.logAction?.invoke("选择iframe框架name:$frameName")
+                    _frame = context.switchTo().frame(frameName)
+                }
+                if (_frame == null && frameIndex >= 0) {
+                    control?.logAction?.invoke("选择iframe框架index:$frameIndex")
+                    _frame = context.switchTo().frame(frameIndex)
+                }
+                //退出框架
+                if (defaultContent == true) {
+                    control?.logAction?.invoke("退出iframe框架")
+                    _frame = null
+                    context.switchTo().defaultContent()
+                }
+            }
+        }
+
         //css
         if (!selectorBean.cssList.isNullOrEmpty()) {
             list.addAll(selectorBean.cssList!!.eachMatchItem { context.findByCss(it) })
@@ -247,7 +280,18 @@ class AutoParse {
 
         //text
         if (!selectorBean.textList.isNullOrEmpty()) {
-            list.addAll(selectorBean.textList!!.eachMatchItem { context.findByText(it, selectorBean.tags ?: TAGS) })
+            list.addAll(selectorBean.textList!!.eachMatchItem {
+                //根据text查找元素
+                val control = control
+                val text = if (control == null) it else parseText(control, it).firstOrNull()
+                if (text != null) {
+                    context.findByText(text, selectorBean.tags ?: TAGS) { noTextList ->
+                        control?.logAction?.invoke("匹配的文本集合:$noTextList")
+                    }
+                } else {
+                    emptyList()
+                }
+            })
         }
 
         //需要过滤

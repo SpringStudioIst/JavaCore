@@ -13,17 +13,17 @@ object Action {
     const val ACTION_INPUT = "input"
 
     /**获取元素文本保存到
-     * [com.angcyo.selenium.bean.TaskBean.getTextMap]
+     * [com.angcyo.selenium.bean.TaskBean.textMap]
      * [getText:key]*/
     const val ACTION_GET_TEXT = "getText"
 
     /**获取元素属性保存到 [x:x]
-     * [com.angcyo.selenium.bean.TaskBean.getTextMap]
+     * [com.angcyo.selenium.bean.TaskBean.textMap]
      * [getAttr[xxx]:key]*/
     const val ACTION_GET_ATTR = "getAttr"
 
     /**获取元素样式保存到
-     * [com.angcyo.selenium.bean.TaskBean.getTextMap]
+     * [com.angcyo.selenium.bean.TaskBean.textMap]
      * [getCss[xxx]:key]*/
     const val ACTION_GET_CSS = "getCss"
 
@@ -40,7 +40,7 @@ object Action {
     const val ACTION_REFRESH = "refresh"
 
     /**将文本进行验证码识别,
-     * 并且将解析结果保存到 [com.angcyo.selenium.bean.TaskBean.getTextMap]
+     * 并且将解析结果保存到 [com.angcyo.selenium.bean.TaskBean.textMap]
      * [code:$[key]:key]*/
     const val ACTION_CODE = "code"
 }

@@ -7,7 +7,7 @@ package com.angcyo.selenium.bean
  */
 data class CheckBean(
     /**check的id, 不参与识别逻辑*/
-    var checkId: Long = 1,
+    var checkId: Long = -1,
 
     /**check的描述, 不参与识别逻辑*/
     var des: String? = null,

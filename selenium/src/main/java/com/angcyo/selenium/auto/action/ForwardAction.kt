@@ -15,13 +15,11 @@ class ForwardAction : BaseAction() {
     }
 
     override fun runAction(control: BaseControl, element: WebElement, action: String): HandleResult {
-        val result = HandleResult()
-        result.elementList = listOf(element)
-        control.driver?.navigate()?.apply {
-            forward()
-            result.success = true
+        return element.actionResult(control) { elementStr ->
+            (control.driver?.navigate()?.run {
+                forward()
+                true
+            } ?: false) to "前进网页[${control.driver?.currentUrl}]"
         }
-        control.logAction?.invoke("前进网页[${control.driver?.currentUrl}]:${result.success}")
-        return result
     }
 }

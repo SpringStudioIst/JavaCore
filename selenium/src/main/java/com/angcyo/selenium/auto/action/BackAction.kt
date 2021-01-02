@@ -15,13 +15,11 @@ class BackAction : BaseAction() {
     }
 
     override fun runAction(control: BaseControl, element: WebElement, action: String): HandleResult {
-        val result = HandleResult()
-        result.elementList = listOf(element)
-        control.driver?.navigate()?.apply {
-            back()
-            result.success = true
+        return element.actionResult(control) { elementStr ->
+            (control.driver?.navigate()?.run {
+                back()
+                true
+            } ?: false) to "回退网页[${control.driver?.currentUrl}]"
         }
-        control.logAction?.invoke("回退网页[${control.driver?.currentUrl}]:${result.success}")
-        return result
     }
 }

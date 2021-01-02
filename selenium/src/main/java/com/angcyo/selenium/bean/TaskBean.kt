@@ -30,15 +30,15 @@ data class TaskBean(
     var wordList: List<String>? = null,
 
     /**[com.angcyo.selenium.auto.action.Action.ACTION_GET_TEXT]命令保存的文本, 供后续使用¬*/
-    var getTextMap: HashMap<String, String?>? = null,
+    var textMap: HashMap<String, String?>? = null,
 )
 
 /**设置[getTextMap]数据*/
 fun TaskBean.putMap(key: String?, value: String?) {
-    if (getTextMap == null) {
-        getTextMap = hashMapOf()
+    if (textMap == null) {
+        textMap = hashMapOf()
     }
     if (key != null) {
-        getTextMap?.put(key, value)
+        textMap?.put(key, value)
     }
 }

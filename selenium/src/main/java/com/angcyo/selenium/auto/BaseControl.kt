@@ -38,7 +38,7 @@ open class BaseControl {
     /**[ActionBean]执行器*/
     var actionRunSchedule: ActionRunSchedule = ActionRunSchedule(this)
 
-    val _autoParse = AutoParse()
+    val _autoParse = AutoParse(this)
 
     //具体的执行操作
     val registerActionList = mutableListOf<BaseAction>()
@@ -90,6 +90,15 @@ open class BaseControl {
                     }
                 })
                 handleActionResult = _autoParse.handle(this, actionBean.check?.handle, eventElementList)
+            }
+        }
+
+        //退出框架
+        actionBean.check?.event?.forEach {
+            if (it.frame?._frame != null) {
+                logAction?.invoke("退出iframe")
+                it.frame?._frame = null
+                driver?.switchTo()?.defaultContent()
             }
         }
 

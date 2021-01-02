@@ -2,7 +2,6 @@ package com.angcyo.selenium.auto.action
 
 import com.angcyo.selenium.auto.BaseControl
 import com.angcyo.selenium.auto.clickSafe
-import com.angcyo.selenium.auto.toStr
 import com.angcyo.selenium.parse.HandleResult
 import org.openqa.selenium.WebElement
 
@@ -18,11 +17,8 @@ class ClickAction : BaseAction() {
     }
 
     override fun runAction(control: BaseControl, element: WebElement, action: String): HandleResult {
-        val result = HandleResult()
-        result.elementList = listOf(element)
-        result.success = element.clickSafe()
-
-        control.logAction?.invoke("点击[${element.toStr()}]:${result.success}")
-        return result
+        return element.actionResult(control) { elementStr ->
+            element.clickSafe() to "点击[${elementStr}]"
+        }
     }
 }
