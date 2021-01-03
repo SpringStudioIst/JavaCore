@@ -20,9 +20,13 @@ data class ActionBean(
     /**是否激活[ActionBean], 未激活直接跳过执行*/
     var enable: Boolean = true,
 
+    /**只有满足条件的[ActionBean]才能被执行, 不满足条件等同于[enable]为false,
+     * 有一个条件满足即可*/
+    var conditionList: List<ConditionBean>? = null,
+
     /**
      * 控制自身执行启动的延迟
-     * [com.angcyo.selenium.parse.TimeParse.parse]
+     * [com.angcyo.selenium.parse.AutoParse.parseTime]
      * */
     var start: String? = null,
 

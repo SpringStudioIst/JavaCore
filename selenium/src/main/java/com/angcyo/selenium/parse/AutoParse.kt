@@ -9,10 +9,7 @@ import com.angcyo.selenium.auto.BaseControl
 import com.angcyo.selenium.auto.TAGS
 import com.angcyo.selenium.auto.findByCss
 import com.angcyo.selenium.auto.findByText
-import com.angcyo.selenium.bean.FilterBean
-import com.angcyo.selenium.bean.HandleBean
-import com.angcyo.selenium.bean.SelectorBean
-import com.angcyo.selenium.bean.TaskConfigBean
+import com.angcyo.selenium.bean.*
 import com.angcyo.selenium.isValid
 import org.openqa.selenium.*
 import org.openqa.selenium.support.locators.RelativeLocator.withTagName
@@ -161,6 +158,7 @@ class AutoParse(val control: BaseControl? = null) {
      * $0 从[com.angcyo.selenium.bean.TaskBean.wordList] 取第一个
      * $-2 从[com.angcyo.selenium.bean.TaskBean.wordList] 取倒数第二个
      * $0~$-2 取范围内的字符
+     * $[xxx] 从[com.angcyo.selenium.bean.TaskBean.textMap]获取[xxx]键值对应的值
      * */
     fun parseText(control: BaseControl, arg: String?): List<String> {
         if (arg.isNullOrEmpty()) {
@@ -275,7 +273,15 @@ class AutoParse(val control: BaseControl? = null) {
 
         //css
         if (!selectorBean.cssList.isNullOrEmpty()) {
-            list.addAll(selectorBean.cssList!!.eachMatchItem { context.findByCss(it) })
+            list.addAll(selectorBean.cssList!!.eachMatchItem {
+                val control = control
+                val css = if (control == null) it else parseText(control, it).firstOrNull()
+                if (css != null) {
+                    context.findByCss(css)
+                } else {
+                    emptyList()
+                }
+            })
         }
 
         //text
@@ -511,6 +517,53 @@ class AutoParse(val control: BaseControl? = null) {
             result.success = false
         }
 
+        return result
+    }
+
+    /**解析条件, 判断是否满足条件*/
+    fun parseCondition(control: BaseControl, conditionList: List<ConditionBean>?): Boolean {
+        return if (conditionList.isNullOrEmpty()) {
+            true
+        } else {
+            var result = false
+            for (condition in conditionList) {
+                if (_conditionParse(control, condition)) {
+                    //有一个满足条件即可
+                    result = true
+                    break
+                }
+            }
+            result
+        }
+    }
+
+    //单个条件, 是否满足
+    fun _conditionParse(control: BaseControl, condition: ConditionBean?): Boolean {
+        var result = true
+        condition?.apply {
+            //textMapList
+            if (!textMapList.isNullOrEmpty()) {
+                for (key in textMapList!!) {
+                    val value = control._currentTaskBean?.textMap?.get(key)
+                    if (value == null) {
+                        //指定key对应的value没有值, 则条件不满足
+                        result = false
+                        break
+                    }
+                }
+            }
+
+            //actionResultList
+            if (result && !actionResultList.isNullOrEmpty()) {
+                for (actionId in actionResultList!!) {
+                    if (control.actionResultMap[actionId] != true) {
+                        //指定id的action执行失败, 则条件不满足
+                        result = false
+                        break
+                    }
+                }
+            }
+        }
         return result
     }
 }

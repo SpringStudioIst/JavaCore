@@ -29,7 +29,7 @@ fun JavascriptExecutor.exeJsByModel(resJsName: String, model: Any, async: Boolea
 }
 
 /**同步执行js, js通过[arguments]获取参数*/
-fun JavascriptExecutor.exeJs(resJsName: String, vararg args: Any): Any? {
+fun JavascriptExecutor.exeJs(resJsName: String, vararg args: Any?): Any? {
     val js = getString(resJsName)
     if (js.isNullOrEmpty()) {
         return false
@@ -38,7 +38,7 @@ fun JavascriptExecutor.exeJs(resJsName: String, vararg args: Any): Any? {
 }
 
 /**异步执行js, js通过[arguments]获取参数*/
-fun JavascriptExecutor.exeJsAsync(resJsName: String, vararg args: Any): Any? {
+fun JavascriptExecutor.exeJsAsync(resJsName: String, vararg args: Any?): Any? {
     val js = getString(resJsName)
     if (js.isNullOrEmpty()) {
         return false

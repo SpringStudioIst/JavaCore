@@ -31,12 +31,13 @@ fun SearchContext.findByText(text: String, tags: String = TAGS, noText: (List<St
     val textList = mutableListOf<String>()
     tags.eachTagWebElement(this) {
         try {
-            val s = this.text
-            textList.add(s)
-            if (this.text.have(text)) {
+            val elementText = this.text
+            textList.add(elementText)
+            if (elementText.have(text)) {
                 result.add(this)
             }
         } catch (e: Exception) {
+            L.e("异常:$e")
             e.printStackTrace()
         }
     }

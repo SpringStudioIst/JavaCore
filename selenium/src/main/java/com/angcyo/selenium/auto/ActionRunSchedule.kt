@@ -63,17 +63,22 @@ class ActionRunSchedule(val control: BaseControl) {
                 } else if (!nextAction.enable) {
                     //未激活的action, 直接跳过, 执行下一个
                     next(nextAction)
+                } else if (!control._autoParse.parseCondition(control, nextAction.conditionList)) {
+                    //不满足满足, 直接跳过执行
+                    control.logAction?.invoke("不满足条件,跳过执行:$nextAction")
+                    next(nextAction)
                 } else {
                     //正常执行
                     if (nextAction.check == null) {
                         next(nextAction)
                     } else {
+                        control.logAction?.invoke("开始执行:$nextAction")
                         control.runAction(nextAction, control._currentTaskBean?.backActionList)
                     }
                 }
             }
 
-            //...
+            //执行结束, 等待下一个执行周期的触发执行...
             if (nextActionBean != null) {
                 actionIndex = _nextActionIndex
                 _nextTime = nextActionTime()

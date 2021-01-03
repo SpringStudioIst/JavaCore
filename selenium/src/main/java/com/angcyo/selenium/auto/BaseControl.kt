@@ -1,5 +1,6 @@
 package com.angcyo.selenium.auto
 
+import com.angcyo.library.ex.toElapsedTime
 import com.angcyo.log.L
 import com.angcyo.selenium.DriverWebElement
 import com.angcyo.selenium.auto.action.*
@@ -38,6 +39,11 @@ open class BaseControl {
     /**[ActionBean]执行器*/
     var actionRunSchedule: ActionRunSchedule = ActionRunSchedule(this)
 
+    /**保存[ActionBean]执行的结果.
+     * key = id
+     * value = 成功or失败*/
+    val actionResultMap = hashMapOf<Long, Boolean>()
+
     val _autoParse = AutoParse(this)
 
     //具体的执行操作
@@ -54,6 +60,8 @@ open class BaseControl {
         registerActionList.add(InputAction())
         registerActionList.add(RefreshAction())
         registerActionList.add(ToAction())
+        registerActionList.add(RemoveAttrAction())
+        registerActionList.add(SetAttrAction())
     }
 
     open fun startInner(task: TaskBean) {
@@ -102,6 +110,9 @@ open class BaseControl {
             }
         }
 
+        //保存执行结果.
+        actionResultMap[actionBean.actionId] = handleActionResult?.success ?: false
+
         //处理结果
         handleActionResult?.apply {
             if (success) {
@@ -118,7 +129,7 @@ open class BaseControl {
     open fun finish() {
         tipAction?.invoke(ControlTip().apply {
             title = "${_currentTaskBean?.title}${actionRunSchedule.indexTip()} 执行完成!"
-            des = "耗时:${actionRunSchedule.duration()}ms"
+            des = "耗时:${actionRunSchedule.duration().toElapsedTime(pattern = intArrayOf(-1, 1, 1))}"
         })
     }
 

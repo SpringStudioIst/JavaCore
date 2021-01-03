@@ -43,4 +43,12 @@ object Action {
      * 并且将解析结果保存到 [com.angcyo.selenium.bean.TaskBean.textMap]
      * [code:$[key]:key]*/
     const val ACTION_CODE = "code"
+
+    /**移除指定元素的指定属性
+     * [removeAttr:css:attr]*/
+    const val ACTION_REMOVE_ATTR = "removeAttr"
+
+    /**设置指定元素的属性值
+     * [setAttr:css:attr=value]*/
+    const val ACTION_SET_ATTR = "setAttr"
 }
