@@ -28,7 +28,7 @@ divNode.style.border = '0.2rem solid red'
 divNode.style.pointerEvents = 'none'
 
 //动画
-divNode.style.transition = 'all 0.3s linear'
+divNode.style.transition = 'all 0.16s linear'
 
 //执行动画
 setTimeout(function () {

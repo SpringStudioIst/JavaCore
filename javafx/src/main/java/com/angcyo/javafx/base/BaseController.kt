@@ -24,7 +24,8 @@ open class BaseController : Initializable {
         controllerHolder[this.javaClass] = this
     }
 
-    /**初始化控制器*/
+    /**子页面(TAB中的页面)初始化控制器
+     * */
     open fun initialize(stage: Stage?, location: URL?, resources: ResourceBundle?) {
         initialize(location, resources)
     }

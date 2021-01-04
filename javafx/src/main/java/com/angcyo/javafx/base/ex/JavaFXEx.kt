@@ -9,6 +9,8 @@ import javafx.scene.Scene
 import javafx.scene.image.Image
 import javafx.stage.Stage
 import javafx.stage.Window
+import java.awt.Desktop
+import java.net.URI
 
 /**
  * Email:angcyo@126.com
@@ -74,4 +76,9 @@ fun Any.getImageFx(imageName: String): Image? {
         e.printStackTrace()
         null
     }
+}
+
+/**使用默认浏览器打开[url]*/
+fun openUrl(url: String) {
+    Desktop.getDesktop().browse(URI(url))
 }
