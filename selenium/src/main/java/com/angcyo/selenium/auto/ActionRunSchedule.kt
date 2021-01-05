@@ -79,11 +79,9 @@ class ActionRunSchedule(val control: BaseControl) {
             }
 
             //执行结束, 等待下一个执行周期的触发执行...
-            if (nextActionBean != null) {
-                actionIndex = _nextActionIndex
-                _nextTime = nextActionTime()
-                showControlTip()
-            }
+            actionIndex = _nextActionIndex
+            _nextTime = nextActionTime()
+            showControlTip()
         }
     }
 
@@ -108,6 +106,13 @@ class ActionRunSchedule(val control: BaseControl) {
         if (!tempActionList.contains(bean)) {
             tempActionList.add(bean)
         }
+    }
+
+    /**设置下一个需要执行的[ActionBean]*/
+    fun startNextAction(bean: ActionBean) {
+        clearTempAction()
+        addNextAction(bean)
+        (control as? AutoControl)?.resume()
     }
 
     /**总共需要执行的[ActionBean]的数量*/

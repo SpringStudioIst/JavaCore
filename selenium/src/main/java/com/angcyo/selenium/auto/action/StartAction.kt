@@ -19,12 +19,12 @@ class StartAction : BaseAction() {
     override fun runAction(control: BaseControl, element: WebElement, action: String): HandleResult {
         val result = HandleResult()
 
-        //配置window
-        AutoParse.configWindow(control.driver!!, control._currentTaskBean!!.config)
-
-        //启动网页
-        val url = control._currentTaskBean?.url
         control.driver?.apply {
+            //配置window
+            AutoParse.configWindow(this, control._currentTaskBean!!.config)
+
+            //启动网页
+            val url = control._currentTaskBean?.url
             if (!url.isNullOrBlank()) {
                 get(url)
                 result.success = true

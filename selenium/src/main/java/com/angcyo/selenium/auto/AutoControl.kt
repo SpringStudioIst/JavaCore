@@ -7,9 +7,6 @@ import com.angcyo.selenium.auto.AutoControl.Companion.STATE_RUNNING
 import com.angcyo.selenium.bean.ActionBean
 import com.angcyo.selenium.bean.TaskBean
 import javafx.beans.property.IntegerPropertyBase
-import org.openqa.selenium.PageLoadStrategy
-import org.openqa.selenium.edge.EdgeDriver
-import org.openqa.selenium.edge.EdgeOptions
 
 /**
  * 自动辅助操作控制类
@@ -49,12 +46,12 @@ class AutoControl : BaseControl(), Runnable {
                 des = _currentTaskBean?.title
             })
             false
-        } else if (task.actionList.isNullOrEmpty()) {
+        } /*else if (task.actionList.isNullOrEmpty()) {
             tipAction?.invoke(ControlTip().apply {
                 title = "无操作需要执行"
             })
             false
-        } else {
+        }*/ else {
             _start(task)
             true
         }
@@ -77,26 +74,12 @@ class AutoControl : BaseControl(), Runnable {
         }
     }
 
-    //初始化驱动
-    fun _initDriver() {
-        if (driver == null) {
-            //驱动程序配置
-            val options = EdgeOptions()
-            _currentTaskBean?.config?.pageLoadStrategy?.let {
-                PageLoadStrategy.fromString(it)?.let {
-                    options.setPageLoadStrategy(it)
-                }
-            }
-            driver = EdgeDriver(options)
-        }
-    }
-
     /**停止控制器, 释放资源*/
     fun stop() {
         _currentThread?.interrupt()
         _controlState.set(STATE_STOP)
         driver?.quit()
-        driver = null
+        driverProperty.set(null)
     }
 
     /**暂停*/

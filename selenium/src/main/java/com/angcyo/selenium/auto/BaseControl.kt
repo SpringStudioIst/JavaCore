@@ -10,8 +10,13 @@ import com.angcyo.selenium.js.exeJs
 import com.angcyo.selenium.parse.AutoParse
 import com.angcyo.selenium.parse.HandleResult
 import com.angcyo.selenium.toPx
+import javafx.beans.property.ObjectPropertyBase
+import javafx.beans.property.SimpleObjectProperty
+import org.openqa.selenium.PageLoadStrategy
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
+import org.openqa.selenium.edge.EdgeDriver
+import org.openqa.selenium.edge.EdgeOptions
 import org.openqa.selenium.remote.RemoteWebDriver
 
 /** 控制[org.openqa.selenium.WebElement]
@@ -20,12 +25,16 @@ import org.openqa.selenium.remote.RemoteWebDriver
  * @date 2020/12/24
  */
 open class BaseControl {
-    /**驱动*/
-    var driver: WebDriver? = null
+
+    /**驱动属性, 支持监听*/
+    val driverProperty: ObjectPropertyBase<WebDriver?> = SimpleObjectProperty<WebDriver?>()
+
+    val driver: WebDriver?
+        get() = driverProperty.get()
 
     /**提示输出*/
     var tipAction: ((ControlTip) -> Unit)? = {
-        L.i(it.title, it.des)
+        L.i(it.title, it.des ?: "")
     }
 
     /**日志输出*/
@@ -62,6 +71,20 @@ open class BaseControl {
         registerActionList.add(ToAction())
         registerActionList.add(RemoveAttrAction())
         registerActionList.add(SetAttrAction())
+    }
+
+    //初始化驱动
+    fun _initDriver() {
+        if (driver == null) {
+            //驱动程序配置
+            val options = EdgeOptions()
+            _currentTaskBean?.config?.pageLoadStrategy?.let {
+                PageLoadStrategy.fromString(it)?.let {
+                    options.setPageLoadStrategy(it)
+                }
+            }
+            driverProperty.set(EdgeDriver(options))
+        }
     }
 
     open fun startInner(task: TaskBean) {

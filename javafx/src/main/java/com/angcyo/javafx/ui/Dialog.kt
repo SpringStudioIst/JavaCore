@@ -1,9 +1,12 @@
 package com.angcyo.javafx.ui
 
+import com.angcyo.javafx.base.ex.getImageFx
 import com.angcyo.javafx.base.ex.getStage
 import javafx.scene.Node
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
+import javafx.scene.control.Dialog
+import javafx.scene.control.TextInputDialog
 import javafx.scene.image.Image
 import java.util.*
 
@@ -13,10 +16,28 @@ import java.util.*
  * @date 2020/12/30
  */
 
-class DslAlert {
+class DslDialog {
 
-    /**窗口类型*/
+    //<editor-fold desc="alert">
+
+    /**[Alert]窗口类型*/
     var alertType: Alert.AlertType = Alert.AlertType.INFORMATION
+
+    /**配置回调*/
+    var configAlertDialog: (Dialog<ButtonType>) -> Unit = {}
+
+    //</editor-fold desc="alert">
+
+    //<editor-fold desc="input">
+
+    /**[TextInputDialog]默认值*/
+    var textInputDefaultValue: String? = null
+
+    var configInputDialog: (Dialog<String>) -> Unit = {}
+
+    //</editor-fold desc="input">
+
+    //<editor-fold desc="dialog">
 
     /**标题*/
     var title: String? = "提示"
@@ -37,11 +58,13 @@ class DslAlert {
     /**扩展内容, 折叠展开的[Node]*/
     var expandableContent: Node? = null
 
-    /**配置回调*/
-    var configDialog: (Alert) -> Unit = {}
+    //</editor-fold desc="dialog">
 
-    fun show(): Optional<ButtonType>? {
-        val dialog = Alert(alertType)
+    fun showAlert(): Optional<ButtonType>? = show(Alert(alertType))
+
+    fun showInput(): Optional<String>? = show(TextInputDialog(textInputDefaultValue))
+
+    fun <R> show(dialog: Dialog<R>): Optional<R>? {
         dialog.title = title
         dialog.headerText = headerText
         dialog.contentText = contentText
@@ -51,6 +74,11 @@ class DslAlert {
             dialog.graphic = it
         }
         //对话框图标
+        if (icons.isEmpty()) {
+            getImageFx("logo.png")?.let {
+                icons.add(it)
+            }
+        }
         if (icons.isNotEmpty()) {
             dialog.dialogPane.getStage()?.icons?.addAll(icons)
         }
@@ -58,7 +86,11 @@ class DslAlert {
         expandableContent?.let {
             dialog.dialogPane.expandableContent = it
         }
-        configDialog(dialog)
+        if (dialog is Alert) {
+            configAlertDialog(dialog)
+        } else if (dialog is TextInputDialog) {
+            configInputDialog(dialog)
+        }
         return dialog.showAndWait()
     }
 }
@@ -75,8 +107,14 @@ if (it.get() == ButtonType.OK) {
 }
 </pre>
  * */
-fun dslAlert(action: DslAlert.() -> Unit): Optional<ButtonType>? {
-    val alert = DslAlert()
+fun dslAlert(action: DslDialog.() -> Unit): Optional<ButtonType>? {
+    val alert = DslDialog()
     alert.action()
-    return alert.show()
+    return alert.showAlert()
+}
+
+fun dslInput(action: DslDialog.() -> Unit): Optional<String>? {
+    val alert = DslDialog()
+    alert.action()
+    return alert.showInput()
 }

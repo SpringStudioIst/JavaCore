@@ -2,10 +2,12 @@ package com.angcyo.javafx.ui
 
 import com.angcyo.core.component.file.writeTo
 import com.angcyo.javafx.base.ex.getImageFx
+import com.angcyo.library.ex.nowTime
 import javafx.scene.Node
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextInputControl
 import javafx.scene.image.ImageView
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Region
 import java.io.File
 
@@ -67,6 +69,7 @@ fun Node?.visible(visible: Boolean = true): Boolean {
         return false
     }
     isVisible = visible
+    isManaged = visible
     return isVisible
 }
 
@@ -79,5 +82,18 @@ fun Region?.invisible(invisible: Boolean = true) {
         0.0
     } else {
         Region.USE_COMPUTED_SIZE
+    }
+}
+
+/**鼠标双击回调*/
+fun Node?.setOnMouseDoubleClicked(delay: Long = 300, action: (MouseEvent) -> Unit) {
+    var firstTime = 0L
+    this?.setOnMouseClicked {
+        val time = nowTime()
+        if ((time - firstTime) <= delay) {
+            action(it)
+        } else {
+            firstTime = time
+        }
     }
 }

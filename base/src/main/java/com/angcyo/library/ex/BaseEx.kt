@@ -3,6 +3,7 @@ package com.angcyo.library.ex
 import java.awt.image.BufferedImage
 import java.io.InputStream
 import java.net.URL
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import javax.imageio.ImageIO
 
@@ -104,4 +105,12 @@ fun <R> sync(count: Int = 1, action: (CountDownLatch) -> R?): R? {
     val result = action(latch)
     latch.await()
     return result
+}
+
+fun <T> Optional<T>?.getOrNull(): T? {
+    return if (this?.isPresent == true) {
+        this.get()
+    } else {
+        null
+    }
 }

@@ -2,6 +2,7 @@ package com.angcyo.selenium.js
 
 import com.angcyo.library.ex.eachField
 import com.angcyo.library.ex.getString
+import com.angcyo.log.L
 import org.openqa.selenium.JavascriptExecutor
 
 /**
@@ -34,7 +35,13 @@ fun JavascriptExecutor.exeJs(resJsName: String, vararg args: Any?): Any? {
     if (js.isNullOrEmpty()) {
         return false
     }
-    return executeScript(js, *args)
+    return try {
+        executeScript(js, *args)
+    } catch (e: Exception) {
+        L.e("异常:$e")
+        e.printStackTrace()
+        null
+    }
 }
 
 /**异步执行js, js通过[arguments]获取参数*/
@@ -43,7 +50,13 @@ fun JavascriptExecutor.exeJsAsync(resJsName: String, vararg args: Any?): Any? {
     if (js.isNullOrEmpty()) {
         return false
     }
-    return executeAsyncScript(js, *args)
+    return try {
+        executeAsyncScript(js, *args)
+    } catch (e: Exception) {
+        L.e("异常:$e")
+        e.printStackTrace()
+        null
+    }
 }
 
 
