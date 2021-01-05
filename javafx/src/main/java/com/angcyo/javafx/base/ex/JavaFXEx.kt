@@ -2,6 +2,7 @@ package com.angcyo.javafx.base.ex
 
 import com.angcyo.http.rx.runRx
 import com.angcyo.javafx.base.BaseController
+import com.angcyo.javafx.base.CancelRunnable
 import com.angcyo.library.ex.getResource
 import javafx.application.Platform
 import javafx.scene.Node
@@ -21,32 +22,40 @@ import java.net.URI
 /**在主线程运行, 通常用来在子线程调用修改UI
  * Not on FX application thread; currentThread = Thread-3
  * */
-fun onMain(action: () -> Unit) {
+fun onMain(action: () -> Unit): CancelRunnable {
+    val cancelRunnable = CancelRunnable(action)
     if (isFxApplicationThread()) {
-        action()
+        cancelRunnable.run()
     } else {
-        Platform.runLater { action() }
+        Platform.runLater(cancelRunnable)
     }
+    return cancelRunnable
 }
 
-fun onBack(action: () -> Unit) {
+fun onBack(action: () -> Unit): CancelRunnable {
+    val cancelRunnable = CancelRunnable(action)
     if (isFxApplicationThread()) {
-        runRx({ action();true })
+        runRx({ cancelRunnable.run();true })
     } else {
-        action()
+        cancelRunnable.run()
     }
+    return cancelRunnable
 }
 
-fun onLater(action: () -> Unit) {
-    Platform.runLater { action() }
+fun onLater(action: () -> Unit): CancelRunnable {
+    val cancelRunnable = CancelRunnable(action)
+    Platform.runLater(cancelRunnable)
+    return cancelRunnable
 }
 
 /**[time]需要延迟的毫秒*/
-fun onDelay(time: Long, action: () -> Unit) {
+fun onDelay(time: Long = 160, action: () -> Unit): CancelRunnable {
+    val cancelRunnable = CancelRunnable(action)
     onBack {
         Thread.sleep(time)
-        onLater(action)
+        Platform.runLater(cancelRunnable)
     }
+    return cancelRunnable
 }
 
 /**是否是主进程

@@ -30,8 +30,12 @@ class DslAlert {
     /**提示[Node]*/
     var tipIconNode: Node? = null
 
-    /**窗口上的图标*/
+    /**窗口上的图标
+     * getImageFx("logo.png")*/
     val icons = mutableListOf<Image>()
+
+    /**扩展内容, 折叠展开的[Node]*/
+    var expandableContent: Node? = null
 
     /**配置回调*/
     var configDialog: (Alert) -> Unit = {}
@@ -50,12 +54,27 @@ class DslAlert {
         if (icons.isNotEmpty()) {
             dialog.dialogPane.getStage()?.icons?.addAll(icons)
         }
+        //扩展内容
+        expandableContent?.let {
+            dialog.dialogPane.expandableContent = it
+        }
         configDialog(dialog)
         return dialog.showAndWait()
     }
 }
 
-/**https://blog.csdn.net/qq_26954773/article/details/78215554*/
+/**https://blog.csdn.net/qq_26954773/article/details/78215554
+<pre>
+dslAlert {
+alertType = Alert.AlertType.ERROR
+icons.add(getImageFx("logo.png")!!)
+contentText = "无效的驱动程序!"
+}?.let {
+if (it.get() == ButtonType.OK) {
+}
+}
+</pre>
+ * */
 fun dslAlert(action: DslAlert.() -> Unit): Optional<ButtonType>? {
     val alert = DslAlert()
     alert.action()

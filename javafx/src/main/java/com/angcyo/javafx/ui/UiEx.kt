@@ -2,9 +2,11 @@ package com.angcyo.javafx.ui
 
 import com.angcyo.core.component.file.writeTo
 import com.angcyo.javafx.base.ex.getImageFx
+import javafx.scene.Node
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextInputControl
 import javafx.scene.image.ImageView
+import javafx.scene.layout.Region
 import java.io.File
 
 /**
@@ -44,8 +46,38 @@ fun TextInputControl.saveOnTextChanged(filePath: String, append: Boolean = false
 }
 
 /**当文本改变时, 保存到文件[file]*/
-fun TextInputControl.saveOnTextChanged(file: File, append: Boolean = false) {
-    textProperty().addListener { observable, oldValue, newValue ->
+fun TextInputControl?.saveOnTextChanged(file: File, append: Boolean = false) {
+    this?.textProperty()?.addListener { observable, oldValue, newValue ->
         newValue?.writeTo(file, append)
+    }
+}
+
+/**是否要激活[Node]*/
+fun Node?.enable(enable: Boolean = true): Boolean {
+    if (this == null) {
+        return false
+    }
+    isDisable = !enable
+    return !isDisable
+}
+
+/**元素可见*/
+fun Node?.visible(visible: Boolean = true): Boolean {
+    if (this == null) {
+        return false
+    }
+    isVisible = visible
+    return isVisible
+}
+
+/**不可见*/
+fun Region?.invisible(invisible: Boolean = true) {
+    if (this == null) {
+        return
+    }
+    prefHeight = if (invisible) {
+        0.0
+    } else {
+        Region.USE_COMPUTED_SIZE
     }
 }
