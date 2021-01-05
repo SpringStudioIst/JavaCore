@@ -1,5 +1,6 @@
 package com.angcyo.selenium
 
+import com.angcyo.javafx.ui.toImage
 import com.angcyo.library.file.fileName
 import javafx.scene.image.Image
 import org.openqa.selenium.OutputType
@@ -36,9 +37,7 @@ class ImageOutputType : OutputType<Image> {
             e.printStackTrace()
             null
         }
-        return file?.run {
-            Image("file:$absolutePath")
-        }
+        return file?.toImage()
     }
 
     fun save(data: ByteArray?): File? {

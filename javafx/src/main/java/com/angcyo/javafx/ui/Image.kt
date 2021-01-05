@@ -3,6 +3,7 @@ package com.angcyo.javafx.ui
 import javafx.scene.image.Image
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
+import java.io.File
 import java.util.*
 
 
@@ -50,3 +51,5 @@ fun ByteArray.toImage(width: Int, height: Int): WritableImage {
 
 /**将[ByteArray]转换成[Base64]字符串*/
 fun ByteArray.toBase64(): String = Base64.getEncoder().encodeToString(this)
+
+fun File.toImage() = Image("file:$absolutePath")
