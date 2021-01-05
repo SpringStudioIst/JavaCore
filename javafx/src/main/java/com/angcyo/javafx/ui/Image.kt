@@ -15,6 +15,9 @@ import javafx.scene.image.WritableImage
 fun Image.clipRect(x: Int, y: Int, width: Int, height: Int): WritableImage =
     WritableImage(pixelReader, x, y, width, height)
 
+/**
+ * https://stackoverflow.com/questions/38095984/convert-javafx-image-object-to-byte-array
+ * */
 fun Image.toByteArray(): ByteArray {
     val width = width.toInt()
     val height = height.toInt()
@@ -31,6 +34,9 @@ fun Image.toByteArray(): ByteArray {
     return pixelBytes
 }
 
+/**
+ * https://stackoverflow.com/questions/38095984/convert-javafx-image-object-to-byte-array
+ * */
 fun ByteArray.toImage(width: Int, height: Int): WritableImage {
     val image = WritableImage(width, height)
     image.pixelWriter.setPixels(
