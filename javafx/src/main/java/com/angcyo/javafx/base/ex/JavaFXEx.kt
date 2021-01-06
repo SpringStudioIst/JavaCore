@@ -11,7 +11,11 @@ import javafx.scene.image.Image
 import javafx.stage.Stage
 import javafx.stage.Window
 import java.awt.Desktop
+import java.awt.Toolkit
+import java.awt.datatransfer.Clipboard
+import java.awt.datatransfer.StringSelection
 import java.net.URI
+
 
 /**
  * Email:angcyo@126.com
@@ -90,4 +94,11 @@ fun Any.getImageFx(imageName: String): Image? {
 /**使用默认浏览器打开[url]*/
 fun openUrl(url: String) {
     Desktop.getDesktop().browse(URI(url))
+}
+
+/**复制到系统剪切板*/
+fun String.copy() {
+    val stringSelection = StringSelection(this)
+    val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
+    clipboard.setContents(stringSelection, null)
 }
