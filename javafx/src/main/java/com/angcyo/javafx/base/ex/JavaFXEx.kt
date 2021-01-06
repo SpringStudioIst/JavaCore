@@ -79,6 +79,9 @@ inline fun <reified Controller : BaseController> controller(): Controller? = ctl
 /**通过[Node]获取所在的舞台*/
 fun Node.getStage() = scene?.window as? Stage
 
+/**[Node]*/
+fun <T> Node.findByCss(selector: String): T? = lookup(selector) as? T?
+
 /**通过css选择器, 选择场景中的[Node]*/
 fun <T> Scene.findByCss(selector: String): T? = lookup(selector) as? T?
 
