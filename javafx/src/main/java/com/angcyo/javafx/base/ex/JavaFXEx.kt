@@ -1,9 +1,11 @@
 package com.angcyo.javafx.base.ex
 
 import com.angcyo.http.rx.runRx
+import com.angcyo.javafx.BaseApp
 import com.angcyo.javafx.base.BaseController
 import com.angcyo.javafx.base.CancelRunnable
 import com.angcyo.library.ex.getResource
+import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Node
 import javafx.scene.Scene
@@ -14,6 +16,7 @@ import java.awt.Desktop
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
+import java.io.File
 import java.net.URI
 
 
@@ -94,6 +97,23 @@ fun Any.getImageFx(imageName: String): Image? {
 /**使用默认浏览器打开[url]*/
 fun openUrl(url: String) {
     Desktop.getDesktop().browse(URI(url))
+}
+
+fun showDocument(uri: String) {
+    BaseApp.app.showDocument(uri)
+}
+
+fun showDocument(file: File) {
+    BaseApp.app.showDocument(file)
+}
+
+/**使用系统默认的文件打开方式打开文件*/
+fun Application.showDocument(uri: String) {
+    hostServices.showDocument(uri)
+}
+
+fun Application.showDocument(file: File) {
+    showDocument(file.toURI().toString())
 }
 
 /**复制到系统剪切板*/

@@ -16,13 +16,13 @@ import java.io.OutputStream
  * @author angcyo
  * @date 2021/01/05
  */
-class ImageOutputType : OutputType<Image> {
+class PairOutputType : OutputType<Pair<File, Image>> {
 
-    override fun convertFromBase64Png(base64Png: String?): Image? {
+    override fun convertFromBase64Png(base64Png: String?): Pair<File, Image>? {
         return convert(OutputType.BYTES.convertFromBase64Png(base64Png))
     }
 
-    override fun convertFromPngBytes(png: ByteArray?): Image? {
+    override fun convertFromPngBytes(png: ByteArray?): Pair<File, Image>? {
         return convert(png)
     }
 
@@ -30,14 +30,14 @@ class ImageOutputType : OutputType<Image> {
         return "OutputType.IMAGE"
     }
 
-    fun convert(data: ByteArray?): Image? {
+    fun convert(data: ByteArray?): Pair<File, Image>? {
         val file = try {
             save(data)
         } catch (e: Exception) {
             e.printStackTrace()
             null
-        }
-        return file?.toImage()
+        } ?: return null
+        return file to file.toImage()
     }
 
     fun save(data: ByteArray?): File? {

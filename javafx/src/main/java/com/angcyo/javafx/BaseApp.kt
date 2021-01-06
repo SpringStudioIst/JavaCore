@@ -1,10 +1,12 @@
 package com.angcyo.javafx
 
 import com.angcyo.http.rx.mainScheduler
+import com.angcyo.javafx.base.ex.getImageFx
 import com.angcyo.log.L
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
 import javafx.application.Application
 import javafx.application.Platform
+import javafx.scene.image.Image
 import javafx.stage.Screen
 import javafx.stage.Stage
 import java.nio.charset.Charset
@@ -18,6 +20,8 @@ open class BaseApp : Application() {
 
     companion object {
         lateinit var app: BaseApp
+
+        fun getLogo(): Image? = getImageFx("logo.png")
     }
 
     init {
