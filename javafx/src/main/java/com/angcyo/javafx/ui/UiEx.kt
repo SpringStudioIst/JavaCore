@@ -3,12 +3,18 @@ package com.angcyo.javafx.ui
 import com.angcyo.core.component.file.writeTo
 import com.angcyo.javafx.base.ex.getImageFx
 import com.angcyo.library.ex.nowTime
+import javafx.collections.ObservableList
+import javafx.geometry.Insets
 import javafx.scene.Node
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextInputControl
 import javafx.scene.image.ImageView
 import javafx.scene.input.MouseEvent
+import javafx.scene.layout.Background
+import javafx.scene.layout.BackgroundFill
+import javafx.scene.layout.CornerRadii
 import javafx.scene.layout.Region
+import javafx.scene.paint.Paint
 import java.io.File
 
 /**
@@ -87,13 +93,30 @@ fun Region?.invisible(invisible: Boolean = true) {
 
 /**鼠标双击回调*/
 fun Node?.setOnMouseDoubleClicked(delay: Long = 300, action: (MouseEvent) -> Unit) {
-    var firstTime = 0L
-    this?.setOnMouseClicked {
-        val time = nowTime()
-        if ((time - firstTime) <= delay) {
-            action(it)
-        } else {
-            firstTime = time
+    this?.apply {
+        var firstTime = 0L
+        val oldClicked = onMouseClicked
+        setOnMouseClicked {
+            //回调原始的事件处理
+            oldClicked?.handle(it)
+
+            //双击检测
+            val time = nowTime()
+            if ((time - firstTime) <= delay) {
+                action(it)
+            } else {
+                firstTime = time
+            }
         }
     }
+}
+
+/**背景*/
+fun background(color: Paint, radii: CornerRadii = CornerRadii.EMPTY, insets: Insets = Insets.EMPTY): Background {
+    return Background(BackgroundFill(color, radii, insets))
+}
+
+fun <T> ObservableList<T>.reset(action: ObservableList<T>.() -> Unit) {
+    clear()
+    action()
 }

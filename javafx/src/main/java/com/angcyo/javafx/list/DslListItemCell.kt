@@ -22,14 +22,15 @@ class DslListItemCell : ListCell<DslListItem>() {
     }
 
     override fun updateItem(item: DslListItem?, empty: Boolean) {
-        //L.i("updateItem:$index $empty")
         super.updateItem(item, empty)
-        //background = null
+        //L.i("updateItem:$index $empty padding:$padding $labelPadding bounds:$layoutBounds")
+        //background = background(Color.AQUA)
+        item?.listView = listView
         if (empty || item == null) {
             text = null
             graphic = null
         } else {
-            graphic = item.bindItem(this)
+            graphic = item.createItem(this)
         }
     }
 }

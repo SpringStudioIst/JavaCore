@@ -62,6 +62,7 @@ open class BaseControl {
         registerActionList.add(BackAction())
         registerActionList.add(ClickAction())
         registerActionList.add(CodeAction())
+        registerActionList.add(ClearAction())
         registerActionList.add(ForwardAction())
         registerActionList.add(GetAttrAction())
         registerActionList.add(GetCssAction())

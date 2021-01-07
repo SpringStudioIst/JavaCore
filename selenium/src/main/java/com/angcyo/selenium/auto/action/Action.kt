@@ -12,6 +12,9 @@ object Action {
     /**输入文本*/
     const val ACTION_INPUT = "input"
 
+    /**可以用于清除输入框的内容*/
+    const val ACTION_CLEAR = "clear"
+
     /**获取元素文本保存到
      * [com.angcyo.selenium.bean.TaskBean.textMap]
      * [getText:key]*/

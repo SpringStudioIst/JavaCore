@@ -79,13 +79,23 @@ inline fun <reified Controller : BaseController> controller(): Controller? = ctl
 /**通过[Node]获取所在的舞台*/
 fun Node.getStage() = scene?.window as? Stage
 
-/**[Node]*/
-fun <T> Node.findByCss(selector: String): T? = lookup(selector) as? T?
+fun String.toSelector() = if (startsWith("#")) this else "#$this"
+
+/**[Node], 只能查找到子child, 多级查不到.*/
+fun <T> Node?.findByCss(selector: String): T? = this?.lookup(selector.toSelector()) as? T?
+fun <T> Node?.findByCssAll(selector: String): Set<T>? = this?.lookupAll(selector.toSelector()) as? Set<T>?
+
+fun <T> Node?.find(selector: String): T? = this?.findByCss(selector)
+fun <T> Node?.findAll(selector: String): Set<T>? = this?.findByCssAll(selector)
 
 /**通过css选择器, 选择场景中的[Node]*/
-fun <T> Scene.findByCss(selector: String): T? = lookup(selector) as? T?
+fun <T> Scene.findByCss(selector: String): T? = root?.findByCss(selector)
+fun <T> Scene.findByCssAll(selector: String): Set<T>? = root?.findByCssAll(selector)
 
-fun <T> Window.findByCss(selector: String) = scene?.findByCss(selector) as? T
+/**[Node], 支持多级查询.*/
+fun <T> Window.findByCss(selector: String) = scene?.findByCss(selector) as? T?
+fun <T> Window.find(selector: String): T? = findByCss(selector)
+fun <T> Window.findAll(selector: String): Set<T>? = scene?.findByCssAll(selector)
 
 /**[javafx.scene.image.Image]*/
 fun Any.getImageFx(imageName: String): Image? {

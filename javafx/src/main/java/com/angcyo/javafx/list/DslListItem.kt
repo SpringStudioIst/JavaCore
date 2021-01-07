@@ -14,23 +14,36 @@ open class DslListItem {
 
     var listView: ListView<DslListItem>? = null
 
+    var itemData: Any? = null
+
+    var itemTag: String? = null
+
     //<editor-fold desc="界面相关">
 
-    var bindItem: (itemCell: DslListItemCell) -> Node? = {
-        val result = onBindItem(it)
-        bindItemOverride(it)
+    var createItem: (itemCell: DslListItemCell) -> Node? = {
+        val result = onCreateItem(it)
+        bindItem(it, result)
         result
     }
 
-    var bindItemOverride: (itemCell: DslListItemCell) -> Unit = {
-        onBindItemOverride(it)
+    var bindItem: (itemCell: DslListItemCell, rootNode: Node?) -> Unit = { itemCell, rootNode ->
+        onBindItem(itemCell, rootNode)
+        bindItemOverride(itemCell, rootNode)
     }
 
-    open fun onBindItem(itemCell: DslListItemCell): Node? {
+    var bindItemOverride: (itemCell: DslListItemCell, rootNode: Node?) -> Unit = { itemCell, rootNode ->
+        onBindItemOverride(itemCell, rootNode)
+    }
+
+    open fun onCreateItem(itemCell: DslListItemCell): Node? {
         return null
     }
 
-    open fun onBindItemOverride(itemCell: DslListItemCell) {
+    open fun onBindItem(itemCell: DslListItemCell, rootNode: Node?) {
+
+    }
+
+    open fun onBindItemOverride(itemCell: DslListItemCell, rootNode: Node?) {
 
     }
 
