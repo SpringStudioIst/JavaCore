@@ -48,7 +48,7 @@ object Tray {
 
             action(trayIcon, popup)
 
-            //如果出现中文乱码, 请使用:-Dfile.encoding=GBK  //GB18030
+            //如果出现中文乱码, 请使用vm参数: -Dfile.encoding=GBK 启动java //GB18030
             val existItem = MenuItem("退出程序")
             val exitListener = ActionListener {
                 tray.remove(trayIcon)
