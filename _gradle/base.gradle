@@ -1,6 +1,6 @@
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 11
 
 dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
@@ -10,12 +10,12 @@ dependencies {
 
 compileKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 
 compileTestKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
