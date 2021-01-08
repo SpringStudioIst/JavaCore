@@ -59,9 +59,11 @@ class ActionRunSchedule(val control: BaseControl) {
                     //执行结束
                     actionIndex = control._currentTaskBean?.actionList?.size ?: actionIndex
                     _endTime = nowTime()
+                    //执行完毕
                     control.finish()
                 } else if (!nextAction.enable) {
                     //未激活的action, 直接跳过, 执行下一个
+                    control.logAction?.invoke("未激活,跳过执行:$nextAction")
                     next(nextAction)
                 } else if (!control._autoParse.parseCondition(control, nextAction.conditionList)) {
                     //不满足满足, 直接跳过执行
@@ -95,6 +97,7 @@ class ActionRunSchedule(val control: BaseControl) {
                 nextIndex = actionIndex
             }
         }
+        control.logAction?.invoke("下一个执行目标索引:$_nextActionIndex")
         _nextActionIndex = nextIndex
     }
 

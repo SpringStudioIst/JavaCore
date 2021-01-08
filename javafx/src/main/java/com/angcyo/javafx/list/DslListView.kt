@@ -145,6 +145,21 @@ class DslListView(val listView: ListView<DslListItem>) {
     //</editor-fold desc="操作符重载">
 }
 
-fun ListView<DslListItem>.renderList(action: DslListView.() -> Unit) {
-    DslListView.init(this, action)
+/**从[ListView]中获取[DslListView]对象*/
+fun ListView<DslListItem>.dslListView(action: DslListView.() -> Unit): DslListView? {
+    if (cellFactory is DslListItemCellFactory) {
+        return (cellFactory as DslListItemCellFactory).dslListView.apply {
+            action()
+        }
+    }
+    return null
+}
+
+fun ListView<DslListItem>.renderList(reset: Boolean = true, action: DslListView.() -> Unit) {
+    DslListView.init(this) {
+        if (reset) {
+            itemsList.clear()
+        }
+        action()
+    }
 }

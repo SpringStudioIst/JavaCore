@@ -12,10 +12,8 @@ import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.image.ImageView
 import javafx.scene.input.*
-import javafx.scene.layout.Background
-import javafx.scene.layout.BackgroundFill
-import javafx.scene.layout.CornerRadii
-import javafx.scene.layout.Region
+import javafx.scene.layout.*
+import javafx.scene.paint.Color
 import javafx.scene.paint.Paint
 import java.io.File
 
@@ -167,6 +165,12 @@ fun <T> ComboBox<T>?.resetItemList(itemList: List<T>?, selectItem: T? = this?.se
     }
 }
 
+fun Pane.resetChildren(childList: Collection<Node>?) {
+    children?.reset {
+        addAll(childList ?: emptyList())
+    }
+}
+
 /**列表选中监听*/
 fun <T> ListView<T>?.onSelected(action: (selectedIndex: Number, selectedItem: T) -> Unit) {
     this?.apply {
@@ -186,3 +190,4 @@ fun <T> ListView<T>?.onSelected(action: (selectedIndex: Number, selectedItem: T)
     }
 }
 
+fun String.toColor(): Color = Color.valueOf(this)

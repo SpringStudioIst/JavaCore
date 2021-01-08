@@ -17,6 +17,7 @@ class DslListItemFilter {
     fun filter(listView: DslListView, listItems: List<DslListItem>) {
         _lastRunnable?.isEnd = true
         _lastRunnable = onDelay(16) {
+            //刷新界面
             listView.listView.items = FXCollections.observableList(listItems)
         }
     }
