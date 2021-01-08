@@ -1,10 +1,10 @@
 package com.angcyo.javafx.ui
 
+import com.angcyo.log.L
 import javafx.animation.Interpolator
 import javafx.animation.KeyFrame
 import javafx.animation.KeyValue
 import javafx.animation.Timeline
-import javafx.beans.property.IntegerPropertyBase
 import javafx.beans.value.WritableValue
 import javafx.util.Duration
 
@@ -14,8 +14,19 @@ import javafx.util.Duration
  * @date 2020/12/30
  */
 
+
+/**
+ * dslTimeline {
+ *   addKeyFrame(0.0, progressBarNode.progressProperty(), 0)
+ *   addKeyFrame(160.0, progressBarNode.progressProperty(), 1)
+ * }
+ *
+ * */
 fun dslTimeline(action: Timeline.() -> Unit): Timeline {
     val timeline = Timeline()
+    timeline.setOnFinished {
+        L.i("Timeline Finished:$it")
+    }
     timeline.cycleCount = 1
     timeline.isAutoReverse = false
     //timeline.keyFrames.add(KeyFrame(Duration(0.0), KeyValue()))
@@ -29,18 +40,18 @@ fun dslTimeline(action: Timeline.() -> Unit): Timeline {
 fun <T> Timeline.addKeyFrame(
     millis: Double,//帧的时间, 毫秒
     target: WritableValue<T>,//操作的属性
-    endValue: T,//属性值
+    value: T,//属性值
     interpolator: Interpolator = Interpolator.LINEAR //差值器
 ) {
-    keyFrames.add(keyFrameOf(millis, target, endValue, interpolator))
+    keyFrames.add(keyFrameOf(millis, target, value, interpolator))
 }
 
 /**定义关键帧*/
 fun <T> keyFrameOf(
     millis: Double,//帧的时间, 毫秒
     target: WritableValue<T>,//操作的属性
-    endValue: T,//属性值
+    value: T,//属性值
     interpolator: Interpolator = Interpolator.LINEAR //差值器
 ): KeyFrame {
-    return KeyFrame(Duration(millis), KeyValue(target, endValue, interpolator))
+    return KeyFrame(Duration(millis), KeyValue(target, value, interpolator))
 }

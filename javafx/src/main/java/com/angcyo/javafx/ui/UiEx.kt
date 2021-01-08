@@ -3,11 +3,13 @@ package com.angcyo.javafx.ui
 import com.angcyo.core.component.file.writeTo
 import com.angcyo.javafx.base.ex.getImageFx
 import com.angcyo.library.ex.nowTime
+import com.angcyo.log.L
+import javafx.beans.value.ObservableValue
+import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.geometry.Insets
 import javafx.scene.Node
-import javafx.scene.control.TabPane
-import javafx.scene.control.TextInputControl
+import javafx.scene.control.*
 import javafx.scene.image.ImageView
 import javafx.scene.input.*
 import javafx.scene.layout.Background
@@ -57,6 +59,19 @@ fun TextInputControl.saveOnTextChanged(filePath: String, append: Boolean = false
 fun TextInputControl?.saveOnTextChanged(file: File, append: Boolean = false) {
     this?.textProperty()?.addListener { observable, oldValue, newValue ->
         newValue?.writeTo(file, append)
+    }
+}
+
+/**监听文本改变*/
+fun TextInputControl?.onTextChanged(action: (observable: ObservableValue<out String>?, oldValue: String?, newValue: String?) -> Unit) {
+    this?.textProperty()?.addListener { observable, oldValue, newValue ->
+        action(observable, oldValue, newValue)
+    }
+}
+
+fun ComboBoxBase<String>?.onTextChanged(action: (observable: ObservableValue<out String>?, oldValue: String?, newValue: String?) -> Unit) {
+    this?.valueProperty()?.addListener { observable, oldValue, newValue ->
+        action(observable, oldValue, newValue)
     }
 }
 
@@ -128,3 +143,46 @@ fun KeyEvent.match(code: KeyCode, vararg modifier: KeyCombination.Modifier): Boo
     val combination = KeyCodeCombination(code, *modifier)
     return combination.match(this)
 }
+
+fun <T> List<T>?.toObservableList(): ObservableList<T> = FXCollections.observableList(this ?: emptyList())
+
+/**重新设置[ListView]显示的数据*/
+fun <T> ListView<T>?.resetItemList(itemList: List<T>?, selectItem: T? = this?.selectionModel?.selectedItem) {
+    this?.apply {
+        items?.reset {
+            addAll(itemList.toObservableList())
+        }
+        //恢复选中
+        selectItem?.let { selectionModel.select(it) }
+    }
+}
+
+fun <T> ComboBox<T>?.resetItemList(itemList: List<T>?, selectItem: T? = this?.selectionModel?.selectedItem) {
+    this?.apply {
+        items?.reset {
+            addAll(itemList.toObservableList())
+        }
+        //恢复选中
+        selectItem?.let { selectionModel.select(it) }
+    }
+}
+
+/**列表选中监听*/
+fun <T> ListView<T>?.onSelected(action: (selectedIndex: Number, selectedItem: T) -> Unit) {
+    this?.apply {
+        var selectedItem: T? = null
+        selectionModel?.selectedIndexProperty()?.addListener { observable, oldValue, newValue ->
+            //后回调
+            L.i("selected:[$newValue] [$selectedItem]")
+            selectedItem?.let {
+                action(newValue, it)
+            }
+        }
+        selectionModel?.selectedItemProperty()?.addListener { observable, oldValue, newValue ->
+            //先回调
+            //L.i("2...$newValue")
+            selectedItem = newValue
+        }
+    }
+}
+

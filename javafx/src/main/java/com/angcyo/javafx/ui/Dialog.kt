@@ -107,6 +107,7 @@ if (it.get() == ButtonType.OK) {
 }
 </pre>
  * */
+
 fun dslAlert(action: DslDialog.() -> Unit): Optional<ButtonType>? {
     val alert = DslDialog()
     alert.action()
@@ -117,4 +118,12 @@ fun dslInput(action: DslDialog.() -> Unit): Optional<String>? {
     val alert = DslDialog()
     alert.action()
     return alert.showInput()
+}
+
+fun alertError(error: String?, action: DslDialog.() -> Unit = {}) {
+    dslAlert {
+        alertType = Alert.AlertType.ERROR
+        contentText = error
+        action()
+    }
 }

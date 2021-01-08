@@ -134,3 +134,18 @@ fun <T> T?.elseNull(action: () -> Unit = {}): T? {
     }
     return this
 }
+
+/**更新具有历史属性的[List]*/
+fun <T> List<T>?.updateHistoryList(value: T?): List<T> {
+    val list = this
+    return if (value is String && value.isEmpty()) {
+        list ?: emptyList()
+    } else if (value == null) {
+        list ?: emptyList()
+    } else {
+        (list?.toMutableList() ?: mutableListOf()).apply {
+            remove(value)
+            add(0, value)
+        }
+    }
+}
