@@ -9,7 +9,7 @@ import javafx.scene.Node
 import javafx.scene.control.TabPane
 import javafx.scene.control.TextInputControl
 import javafx.scene.image.ImageView
-import javafx.scene.input.MouseEvent
+import javafx.scene.input.*
 import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.CornerRadii
@@ -119,4 +119,12 @@ fun background(color: Paint, radii: CornerRadii = CornerRadii.EMPTY, insets: Ins
 fun <T> ObservableList<T>.reset(action: ObservableList<T>.() -> Unit) {
     clear()
     action()
+}
+
+/**匹配按键
+ * [Ctrl+S] it.match(KeyCode.S, KeyCodeCombination.CONTROL_DOWN)
+ * */
+fun KeyEvent.match(code: KeyCode, vararg modifier: KeyCombination.Modifier): Boolean {
+    val combination = KeyCodeCombination(code, *modifier)
+    return combination.match(this)
 }

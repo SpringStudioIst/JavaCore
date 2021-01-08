@@ -72,9 +72,9 @@ object DslFileHelper {
 
     fun _wrapData(data: String): String {
         return buildString {
-            appendln()
+            appendLine()
             append(dateFormat.format(Date()))
-            appendln()
+            appendLine()
             append(data)
         }
     }
@@ -82,9 +82,9 @@ object DslFileHelper {
     fun _wrapData2(data: CharSequence): String {
         return buildString {
             append(dateFormat.format(Date()))
-            appendln()
+            appendLine()
             append(data)
-            appendln()
+            appendLine()
         }
     }
 }
@@ -99,6 +99,10 @@ fun String?.writeTo(
     name: String = logFileName()
 ) {
     DslFileHelper.write(folder, name, this ?: "null")
+}
+
+fun File.writeText(data: String?, append: Boolean = true) {
+    FileUtils.writeExternal(this, data ?: "null", append)
 }
 
 fun String?.writeTo(file: File, append: Boolean = true) {

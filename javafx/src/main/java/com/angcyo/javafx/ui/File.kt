@@ -33,14 +33,7 @@ class DslChooser {
     /**文件扩展过滤*/
     val extList = mutableListOf<ExtensionFilter>()
 
-    /**
-     * 调用系统的选择文件的窗口
-     * ExtensionFilter("Text Files", "*.txt"),
-     * ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
-     * ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
-     * ExtensionFilter("All Files", "*.*")
-     * */
-    fun showChooserFile(): File? {
+    fun fileChooser(): FileChooser {
         val chooser = FileChooser()
         chooser.title = title ?: "选择文件"
         chooser.initialDirectory = initialDirectory
@@ -49,9 +42,28 @@ class DslChooser {
         } else {
             chooser.extensionFilters.addAll(extList)
         }
-        val selectedFile = chooser.showOpenDialog(stage ?: BaseApp.app.primaryStage)
-        L.i("选择文件:$selectedFile")
-        return selectedFile
+        return chooser
+    }
+
+    /**
+     * 调用系统的选择文件的窗口
+     * ExtensionFilter("Text Files", "*.txt"),
+     * ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
+     * ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
+     * ExtensionFilter("All Files", "*.*")
+     * */
+    fun showOpenFile(): File? {
+        val chooser = fileChooser()
+        val file = chooser.showOpenDialog(stage ?: BaseApp.app.primaryStage)
+        L.i("选择文件:$file")
+        return file
+    }
+
+    fun showOpenMultipleFile(): List<File>? {
+        val chooser = fileChooser()
+        val list = chooser.showOpenMultipleDialog(stage ?: BaseApp.app.primaryStage)
+        L.i("选择文件列表:$list")
+        return list
     }
 
     /**选择文件夹*/
@@ -59,16 +71,37 @@ class DslChooser {
         val chooser = DirectoryChooser()
         chooser.title = title ?: "选择文件夹"
         chooser.initialDirectory = initialDirectory
-        val selectedFile = chooser.showDialog(stage ?: BaseApp.app.primaryStage)
-        L.i("选择文件夹:$selectedFile")
-        return selectedFile
+        val file = chooser.showDialog(stage ?: BaseApp.app.primaryStage)
+        L.i("选择文件夹:$file")
+        return file
     }
+
+    fun showSaveFile(): File? {
+        val chooser = fileChooser()
+        chooser.title = title ?: "保存文件"
+        val file = chooser.showSaveDialog(stage ?: BaseApp.app.primaryStage)
+        L.i("保存文件:$file")
+        return file
+    }
+
 }
 
-fun dslChooserFile(action: DslChooser.() -> Unit): File? {
+fun dslOpenFile(action: DslChooser.() -> Unit): File? {
     val chooser = DslChooser()
     chooser.action()
-    return chooser.showChooserFile()
+    return chooser.showOpenFile()
+}
+
+fun dslOpenMultipleFile(action: DslChooser.() -> Unit): List<File>? {
+    val chooser = DslChooser()
+    chooser.action()
+    return chooser.showOpenMultipleFile()
+}
+
+fun dslSaveFile(action: DslChooser.() -> Unit): File? {
+    val chooser = DslChooser()
+    chooser.action()
+    return chooser.showSaveFile()
 }
 
 fun dslChooserFolder(action: DslChooser.() -> Unit): File? {
