@@ -1,5 +1,6 @@
 package com.angcyo.javafx.base
 
+import com.angcyo.javafx.annotation.inject
 import com.angcyo.library.ex.className
 import com.angcyo.log.L
 import javafx.fxml.Initializable
@@ -28,6 +29,9 @@ open class BaseController : Initializable {
      * */
     open fun initialize(stage: Stage?, location: URL?, resources: ResourceBundle?) {
         initialize(location, resources)
+
+        //节点注入
+        inject(stage)
     }
 
     /**销毁控制器*/
